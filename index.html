@@ -1,0 +1,488 @@
+<!DOCTYPE HTML>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aquarium Clicker Online</title>
+
+<style>
+    body {
+        background: linear-gradient(#1e3c72, #2a5298, #0f1c3f);
+        font-family: Arial, sans-serif;
+        text-align: center;
+        margin: 0;
+        color: white;
+        overflow: hidden;
+    }
+
+    #loginScreen {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.95);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #loginBox {
+        background: #1a1a1a;
+        padding: 30px;
+        border-radius: 15px;
+        border: 3px solid #FFD700;
+        width: 300px;
+    }
+
+    #loginBox input {
+        width: 90%;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+        border: none;
+        font-size: 16px;
+    }
+
+    #ui {
+        background: rgba(0,0,0,0.7);
+        padding: 15px;
+        position: fixed;
+        width: 100%;
+        top: 0;
+        z-index: 100;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        display: none;
+    }
+
+    #stats {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        font-size: 16px;
+        margin: 10px 0;
+        flex-wrap: wrap;
+    }
+
+    #aquarium {
+        width: 100vw;
+        height: 100vh;
+        position: relative;
+        overflow: hidden;
+        display: none;
+    }
+
+  .poisson {
+        position: absolute;
+        cursor: pointer;
+        user-select: none;
+        transition: transform 0.1s;
+        text-align: center;
+    }
+
+  .poisson-emoji { font-size: 40px; display: block; }
+  .poisson-gain { font-size: 14px; color: #FFD700; font-weight: bold; text-shadow: 1px 1px 2px black; }
+  .poisson:active { transform: scale(1.2); }
+
+    button {
+        padding: 12px 25px;
+        font-size: 16px;
+        cursor: pointer;
+        background: linear-gradient(#FFD700, #FFA500);
+        color: black;
+        border: none;
+        border-radius: 8px;
+        margin: 5px;
+        font-weight: bold;
+        box-shadow: 0 3px #cc8400;
+    }
+
+    button:active { transform: translateY(2px); box-shadow: 0 1px #cc8400; }
+    button:disabled { background: #555; color: #999; box-shadow: none; }
+
+    #shop, #leaderboard {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #1a1a1a;
+        padding: 25px;
+        border-radius: 15px;
+        border: 3px solid #FFD700;
+        z-index: 200;
+        max-width: 400px;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+
+  .shop-item,.leaderboard-item {
+        background: #2d2d2d;
+        margin: 12px 0;
+        padding: 15px;
+        border-radius: 10px;
+        border-left: 4px solid #FFD700;
+    }
+
+  .leaderboard-item { display: flex; justify-content: space-between; }
+  .rank-1 { background: linear-gradient(45deg, #FFD700, #FFA500); color: black; }
+  .rank-2 { background: linear-gradient(45deg, #C0C0C0, #A9A9A9); color: black; }
+  .rank-3 { background: linear-gradient(45deg, #CD7F32, #A0522D); color: black; }
+
+  .shop-stats { font-size: 14px; color: #aaa; margin: 5px 0; }
+
+  .bulle {
+        position: absolute;
+        font-size: 20px;
+        pointer-events: none;
+        animation: monter 2s forwards;
+        font-weight: bold;
+        color: #FFD700;
+    }
+
+    @keyframes monter {
+        0% { opacity: 1; transform: translateY(0); }
+        100% { opacity: 0; transform: translateY(-50px); }
+    }
+
+    #messageErreur { color: #ff4444; margin: 10px 0; min-height: 20px; }
+</style>
+</head>
+<body>
+    <div id="loginScreen">
+        <div id="loginBox">
+            <h2>🐟 Aquarium Clicker</h2>
+            <div id="formConnexion">
+                <h3>Connexion</h3>
+                <input type="text" id="loginNom" placeholder="Pseudo" maxlength="15">
+                <input type="password" id="loginMdp" placeholder="Mot de passe">
+                <button onclick="seConnecter()">Se connecter</button>
+                <p>Pas de compte? <a href="#" onclick="afficherInscription()" style="color:#FFD700">Créer un compte</a></p>
+            </div>
+
+            <div id="formInscription" style="display:none">
+                <h3>Créer un compte</h3>
+                <input type="text" id="registerNom" placeholder="Pseudo" maxlength="15">
+                <input type="password" id="registerMdp" placeholder="Mot de passe">
+                <button onclick="creerCompte()">Créer le compte</button>
+                <p>Déjà un compte? <a href="#" onclick="afficherConnexion()" style="color:#FFD700">Se connecter</a></p>
+            </div>
+            <div id="messageErreur"></div>
+        </div>
+    </div>
+
+    <div id="ui">
+        <h1>🐟 Aquarium de <span id="nomJoueur"></span></h1>
+        <div id="stats">
+            <div>💰 <span id="argent">0</span>¢</div>
+            <div>🐠 <span id="nbPoissons">0</span></div>
+            <div>⚡ <span id="revenuSec">0</span>¢/s</div>
+            <div>🏆 Score: <span id="scoreTotal">0</span></div>
+        </div>
+        <button onclick="ouvrirShop()">🛒 Boutique</button>
+        <button onclick="ouvrirLeaderboard()">🏆 Classement</button>
+        <button onclick="seDeconnecter()">🚪 Déconnexion</button>
+    </div>
+
+    <div id="aquarium"></div>
+
+    <div id="shop">
+        <h2>Boutique de poissons</h2>
+        <div id="shopItems"></div>
+        <button onclick="fermerShop()">Fermer</button>
+    </div>
+
+    <div id="leaderboard">
+        <h2>🏆 Classement Mondial</h2>
+        <div id="leaderboardList"></div>
+        <button onclick="fermerLeaderboard()">Fermer</button>
+    </div>
+
+    <script>
+        let utilisateurActuel = null;
+        let argent = 0;
+        let poissons = [];
+        let poissonId = 0;
+        let revenuPassif = 0;
+        let scoreTotal = 0;
+
+        const TYPES_POISSONS = [
+            { emoji: '🐟', nom: 'Poisson Rouge', prix: 0, gainClic: 1, gainAuto: 0 },
+            { emoji: '🐠', nom: 'Poisson Clown', prix: 50, gainClic: 3, gainAuto: 0 },
+            { emoji: '🐡', nom: 'Poisson Globe', prix: 200, gainClic: 8, gainAuto: 0.5 },
+            { emoji: '🦑', nom: 'Calamar', prix: 800, gainClic: 20, gainAuto: 2 },
+            { emoji: '🦈', nom: 'Requin', prix: 3000, gainClic: 50, gainAuto: 10 },
+            { emoji: '🐋', nom: 'Baleine', prix: 10000, gainClic: 100, gainAuto: 50 }
+        ];
+
+        const aquarium = document.getElementById("aquarium");
+        const argentElement = document.getElementById("argent");
+        const nbPoissonsElement = document.getElementById("nbPoissons");
+        const revenuSecElement = document.getElementById("revenuSec");
+        const scoreTotalElement = document.getElementById("scoreTotal");
+
+        // Vérifier si déjà connecté
+        const joueurSauvegarde = localStorage.getItem('aquarium_utilisateur_actuel');
+        if (joueurSauvegarde) {
+            chargerJoueur(joueurSauvegarde);
+        }
+
+        // Revenus passifs + sauvegarde auto toutes les 5 sec
+        setInterval(() => {
+            if (utilisateurActuel && revenuPassif > 0) {
+                argent += revenuPassif;
+                scoreTotal += revenuPassif;
+                updateUI();
+            }
+        }, 1000);
+
+        setInterval(() => {
+            if (utilisateurActuel) sauvegarderProgression();
+        }, 5000);
+
+        // === SYSTÈME DE COMPTES ===
+        function afficherInscription() {
+            document.getElementById('formConnexion').style.display = 'none';
+            document.getElementById('formInscription').style.display = 'block';
+            document.getElementById('messageErreur').innerText = '';
+        }
+
+        function afficherConnexion() {
+            document.getElementById('formInscription').style.display = 'none';
+            document.getElementById('formConnexion').style.display = 'block';
+            document.getElementById('messageErreur').innerText = '';
+        }
+
+        function creerCompte() {
+            const nom = document.getElementById('registerNom').value.trim();
+            const mdp = document.getElementById('registerMdp').value;
+
+            if (nom.length < 3) return afficherErreur('Pseudo trop court, 3 caractères min');
+            if (mdp.length < 3) return afficherErreur('Mot de passe trop court, 3 caractères min');
+
+            const comptes = JSON.parse(localStorage.getItem('aquarium_comptes') || '{}');
+
+            if (comptes[nom]) return afficherErreur('Ce pseudo existe déjà!');
+
+            comptes[nom] = {
+                mdp: mdp,
+                argent: 0,
+                poissons: [{ type: 0, count: 1 }], // Poisson rouge gratuit
+                scoreTotal: 0,
+                dateCreation: Date.now()
+            };
+
+            localStorage.setItem('aquarium_comptes', JSON.stringify(comptes));
+            afficherErreur('Compte créé! Connecte-toi maintenant', '#44ff44');
+            afficherConnexion();
+            document.getElementById('loginNom').value = nom;
+        }
+
+        function seConnecter() {
+            const nom = document.getElementById('loginNom').value.trim();
+            const mdp = document.getElementById('loginMdp').value;
+            const comptes = JSON.parse(localStorage.getItem('aquarium_comptes') || '{}');
+
+            if (!comptes[nom]) return afficherErreur('Pseudo introuvable');
+            if (comptes[nom].mdp!== mdp) return afficherErreur('Mot de passe incorrect');
+
+            chargerJoueur(nom);
+        }
+
+        function chargerJoueur(nom) {
+            const comptes = JSON.parse(localStorage.getItem('aquarium_comptes') || '{}');
+            const data = comptes[nom];
+
+            utilisateurActuel = nom;
+            argent = data.argent;
+            scoreTotal = data.scoreTotal || 0;
+
+            localStorage.setItem('aquarium_utilisateur_actuel', nom);
+
+            // Reset aquarium
+            aquarium.innerHTML = '';
+            poissons = [];
+            revenuPassif = 0;
+
+            // Recharger les poissons
+            data.poissons.forEach(p => {
+                for (let i = 0; i < p.count; i++) {
+                    creerPoisson(TYPES_POISSONS[p.type], false);
+                }
+            });
+
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('ui').style.display = 'block';
+            document.getElementById('aquarium').style.display = 'block';
+            document.getElementById('nomJoueur').innerText = nom;
+
+            genererShop();
+            updateUI();
+        }
+
+        function seDeconnecter() {
+            sauvegarderProgression();
+            localStorage.removeItem('aquarium_utilisateur_actuel');
+            location.reload();
+        }
+
+        function sauvegarderProgression() {
+            if (!utilisateurActuel) return;
+
+            const comptes = JSON.parse(localStorage.getItem('aquarium_comptes') || '{}');
+
+            // Compter les poissons par type
+            const poissonsSauvegarde = {};
+            poissons.forEach(p => {
+                const index = TYPES_POISSONS.indexOf(p.type);
+                poissonsSauvegarde[index] = (poissonsSauvegarde[index] || 0) + 1;
+            });
+
+            comptes[utilisateurActuel] = {
+               ...comptes[utilisateurActuel],
+                argent: argent,
+                scoreTotal: scoreTotal,
+                poissons: Object.entries(poissonsSauvegarde).map(([type, count]) => ({ type: parseInt(type), count }))
+            };
+
+            localStorage.setItem('aquarium_comptes', JSON.stringify(comptes));
+        }
+
+        function afficherErreur(msg, couleur = '#ff4444') {
+            const el = document.getElementById('messageErreur');
+            el.innerText = msg;
+            el.style.color = couleur;
+        }
+
+        // === JEU ===
+        function creerPoisson(typePoisson, animation = true) {
+            const poissonDiv = document.createElement('div');
+            poissonDiv.className = 'poisson';
+            poissonDiv.id = 'poisson' + poissonId++;
+
+            poissonDiv.innerHTML = `
+                <span class="poisson-emoji">${typePoisson.emoji}</span>
+                <span class="poisson-gain">+${typePoisson.gainClic}¢</span>
+            `;
+
+            poissonDiv.onclick = () => cliquerPoisson(poissonDiv, typePoisson);
+            poissonDiv.style.left = Math.random() * (window.innerWidth - 60) + 'px';
+            poissonDiv.style.top = Math.random() * (window.innerHeight - 250) + 120 + 'px';
+
+            aquarium.appendChild(poissonDiv);
+            poissons.push({ element: poissonDiv, type: typePoisson });
+            revenuPassif += typePoisson.gainAuto;
+
+            if (animation) nager(poissonDiv);
+            else poissonDiv.style.transition = 'left 4s, top 4s';
+
+            updateUI();
+        }
+
+        function cliquerPoisson(poissonDiv, typePoisson) {
+            argent += typePoisson.gainClic;
+            scoreTotal += typePoisson.gainClic;
+
+            const bulle = document.createElement('div');
+            bulle.className = 'bulle';
+            bulle.innerText = '+' + typePoisson.gainClic + '¢';
+            bulle.style.left = poissonDiv.style.left;
+            bulle.style.top = poissonDiv.style.top;
+            aquarium.appendChild(bulle);
+            setTimeout(() => bulle.remove(), 2000);
+
+            poissonDiv.style.transform = 'scale(1.3)';
+            setTimeout(() => poissonDiv.style.transform = 'scale(1)', 100);
+
+            updateUI();
+        }
+
+        function nager(poissonDiv) {
+            function bouger() {
+                let newX = Math.random() * (window.innerWidth - 60);
+                let newY = Math.random() * (window.innerHeight - 250) + 120;
+                if (newX < parseInt(poissonDiv.style.left)) {
+                    poissonDiv.style.transform = 'scaleX(-1)';
+                } else {
+                    poissonDiv.style.transform = 'scaleX(1)';
+                }
+                poissonDiv.style.transition = 'left 4s, top 4s';
+                poissonDiv.style.left = newX + 'px';
+                poissonDiv.style.top = newY + 'px';
+            }
+            bouger();
+            setInterval(bouger, 4000);
+        }
+
+        function genererShop() {
+            const shopItems = document.getElementById('shopItems');
+            shopItems.innerHTML = '';
+
+            TYPES_POISSONS.forEach((poisson, index) => {
+                if (poisson.prix === 0) return;
+
+                const item = document.createElement('div');
+                item.className = 'shop-item';
+                item.innerHTML = `
+                    <h3>${poisson.emoji} ${poisson.nom}</h3>
+                    <div class="shop-stats">
+                        💰 Prix: ${poisson.prix}¢<br>
+                        👆 Par clic: ${poisson.gainClic}¢<br>
+                        ⚡ Auto: ${poisson.gainAuto}¢/sec
+                    </div>
+                    <button onclick="acheterPoisson(${index})" ${argent < poisson.prix? 'disabled' : ''}>Acheter</button>
+                `;
+                shopItems.appendChild(item);
+            });
+        }
+
+        function acheterPoisson(index) {
+            const typePoisson = TYPES_POISSONS[index];
+            if (argent >= typePoisson.prix) {
+                argent -= typePoisson.prix;
+                creerPoisson(typePoisson);
+                genererShop();
+                fermerShop();
+            }
+        }
+
+        // === CLASSEMENT ===
+        function ouvrirLeaderboard() {
+            const comptes = JSON.parse(localStorage.getItem('aquarium_comptes') || '{}');
+            const classement = Object.entries(comptes)
+              .map(([nom, data]) => ({ nom, score: data.scoreTotal || 0, poissons: data.poissons?.reduce((a,b) => a + b.count, 0) || 0 }))
+              .sort((a, b) => b.score - a.score)
+              .slice(0, 10);
+
+            const list = document.getElementById('leaderboardList');
+            list.innerHTML = '';
+
+            classement.forEach((joueur, index) => {
+                const item = document.createElement('div');
+                item.className = 'leaderboard-item rank-' + (index + 1);
+                if (joueur.nom === utilisateurActuel) item.style.border = '2px solid white';
+
+                item.innerHTML = `
+                    <div>#${index + 1} ${joueur.nom}</div>
+                    <div>🏆 ${Math.floor(joueur.score)} | 🐠 ${joueur.poissons}</div>
+                `;
+                list.appendChild(item);
+            });
+
+            document.getElementById('leaderboard').style.display = 'block';
+        }
+
+        function fermerLeaderboard() { document.getElementById('leaderboard').style.display = 'none'; }
+        function ouvrirShop() { genererShop(); document.getElementById('shop').style.display = 'block'; }
+        function fermerShop() { document.getElementById('shop').style.display = 'none'; }
+
+        function updateUI() {
+            argentElement.innerText = Math.floor(argent);
+            nbPoissonsElement.innerText = poissons.length;
+            revenuSecElement.innerText = revenuPassif.toFixed(1);
+            scoreTotalElement.innerText = Math.floor(scoreTotal);
+        }
+
+        // Sauvegarde avant de quitter
+        window.addEventListener('beforeunload', sauvegarderProgression);
+    </script>
+</body>
+</html>
