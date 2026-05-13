@@ -5,21 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aquarium Clicker Online</title>
 
-    <!-- FIREBASE: décommente quand t'as ton firebaseConfig -->
-    <!--
-    <script type="module">
-      import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js'
-      import { getDatabase, ref, set, get, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js'
-      const firebaseConfig = { /* COLLE TA CONFIG ICI */ };
-      const app = initializeApp(firebaseConfig);
-      window.db = getDatabase(app);
-      window.dbRef = ref;
-      window.dbSet = set;
-      window.dbGet = get;
-      window.dbOnValue = onValue;
-    </script>
-    -->
-
 <style>
     body {
         background: linear-gradient(#1e3c72, #2a5298, #0f1c3f);
@@ -85,7 +70,7 @@
         display: none;
     }
 
- .poisson {
+.poisson {
         position: absolute;
         cursor: pointer;
         user-select: none;
@@ -93,9 +78,9 @@
         text-align: center;
     }
 
- .poisson-emoji { font-size: 40px; display: block; }
- .poisson-gain { font-size: 14px; color: #FFD700; font-weight: bold; text-shadow: 1px 1px 2px black; }
- .poisson:active { transform: scale(1.2); }
+.poisson-emoji { font-size: 40px; display: block; }
+.poisson-gain { font-size: 14px; color: #FFD700; font-weight: bold; text-shadow: 1px 1px 2px black; }
+.poisson:active { transform: scale(1.2); }
 
     button {
         padding: 12px 25px;
@@ -129,7 +114,7 @@
         overflow-y: auto;
     }
 
- .shop-item,.leaderboard-item {
+.shop-item,.leaderboard-item {
         background: #2d2d2d;
         margin: 12px 0;
         padding: 15px;
@@ -137,14 +122,14 @@
         border-left: 4px solid #FFD700;
     }
 
- .leaderboard-item { display: flex; justify-content: space-between; }
- .rank-1 { background: linear-gradient(45deg, #FFD700, #FFA500); color: black; }
- .rank-2 { background: linear-gradient(45deg, #C0C0C0, #A9A9A9); color: black; }
- .rank-3 { background: linear-gradient(45deg, #CD7F32, #A0522D); color: black; }
+.leaderboard-item { display: flex; justify-content: space-between; }
+.rank-1 { background: linear-gradient(45deg, #FFD700, #FFA500); color: black; }
+.rank-2 { background: linear-gradient(45deg, #C0C0C0, #A9A9A9); color: black; }
+.rank-3 { background: linear-gradient(45deg, #CD7F32, #A0522D); color: black; }
 
- .shop-stats { font-size: 14px; color: #aaa; margin: 5px 0; }
+.shop-stats { font-size: 14px; color: #aaa; margin: 5px 0; }
 
- .bulle {
+.bulle {
         position: absolute;
         font-size: 20px;
         pointer-events: none;
@@ -169,7 +154,7 @@
                 <h3>Connexion</h3>
                 <input type="text" id="loginNom" placeholder="Pseudo" maxlength="15">
                 <input type="password" id="loginMdp" placeholder="Mot de passe">
-                <button onclick="seConnecter()">Se connecter</button>
+                <button onclick="seConnecter().catch(console.error)">Se connecter</button>
                 <p>Pas de compte? <a href="#" onclick="afficherInscription()" style="color:#FFD700">Créer un compte</a></p>
             </div>
 
@@ -177,7 +162,7 @@
                 <h3>Créer un compte</h3>
                 <input type="text" id="registerNom" placeholder="Pseudo" maxlength="15">
                 <input type="password" id="registerMdp" placeholder="Mot de passe">
-                <button onclick="creerCompte()">Créer le compte</button>
+                <button onclick="creerCompte().catch(console.error)">Créer le compte</button>
                 <p>Déjà un compte? <a href="#" onclick="afficherConnexion()" style="color:#FFD700">Se connecter</a></p>
             </div>
             <div id="messageErreur"></div>
@@ -218,7 +203,6 @@
         let poissonId = 0;
         let revenuPassif = 0;
         let scoreTotal = 0;
-        let dirty = false; // pour save que si ça change
 
         const TYPES_POISSONS = [
             { emoji: '🐟', nom: 'Poisson Rouge', prix: 0, gainClic: 1, gainAuto: 0 },
@@ -241,20 +225,26 @@
             chargerJoueur(joueurSauvegarde);
         }
 
-        // Revenus passifs
+        // Revenus passifs + sauvegarde auto toutes les 5 sec
         setInterval(() => {
             if (utilisateurActuel && revenuPassif > 0) {
                 argent += revenuPassif;
                 scoreTotal += revenuPassif;
-                dirty = true;
                 updateUI();
             }
         }, 1000);
 
-        // Sauvegarde auto toutes les 5 sec si dirty
         setInterval(() => {
-            if (utilisateurActuel && dirty) sauvegarderProgression();
+            if (utilisateurActuel) sauvegarderProgression();
         }, 5000);
+
+        // === HASH MOT DE PASSE ===
+        async function hashMdp(mdp) {
+            const msgUint8 = new TextEncoder().encode(mdp);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
 
         // === SYSTÈME DE COMPTES ===
         function afficherInscription() {
@@ -269,7 +259,7 @@
             document.getElementById('messageErreur').innerText = '';
         }
 
-        function creerCompte() {
+        async function creerCompte() {
             const nom = document.getElementById('registerNom').value.trim();
             const mdp = document.getElementById('registerMdp').value;
 
@@ -280,8 +270,10 @@
 
             if (comptes[nom]) return afficherErreur('Ce pseudo existe déjà!');
 
+            const mdpHash = await hashMdp(mdp);
+
             comptes[nom] = {
-                mdp: mdp,
+                mdp: mdpHash,
                 argent: 0,
                 poissons: [{ type: 0, count: 1 }],
                 scoreTotal: 0,
@@ -294,13 +286,15 @@
             document.getElementById('loginNom').value = nom;
         }
 
-        function seConnecter() {
+        async function seConnecter() {
             const nom = document.getElementById('loginNom').value.trim();
             const mdp = document.getElementById('loginMdp').value;
             const comptes = JSON.parse(localStorage.getItem('aquarium_comptes') || '{}');
 
             if (!comptes[nom]) return afficherErreur('Pseudo introuvable');
-            if (comptes[nom].mdp!== mdp) return afficherErreur('Mot de passe incorrect');
+
+            const mdpHash = await hashMdp(mdp);
+            if (comptes[nom].mdp!== mdpHash) return afficherErreur('Mot de passe incorrect');
 
             chargerJoueur(nom);
         }
@@ -316,8 +310,8 @@
             localStorage.setItem('aquarium_utilisateur_actuel', nom);
 
             // Reset aquarium
+            poissons.forEach(p => clearInterval(p.element.intervalId));
             aquarium.innerHTML = '';
-            poissons.forEach(p => clearInterval(p.intervalId));
             poissons = [];
             revenuPassif = 0;
 
@@ -339,7 +333,7 @@
 
         function seDeconnecter() {
             sauvegarderProgression();
-            poissons.forEach(p => clearInterval(p.intervalId));
+            poissons.forEach(p => clearInterval(p.element.intervalId));
             localStorage.removeItem('aquarium_utilisateur_actuel');
             location.reload();
         }
@@ -356,23 +350,13 @@
             });
 
             comptes[utilisateurActuel] = {
-              ...comptes[utilisateurActuel],
+             ...comptes[utilisateurActuel],
                 argent: argent,
                 scoreTotal: scoreTotal,
                 poissons: Object.entries(poissonsSauvegarde).map(([type, count]) => ({ type: parseInt(type), count }))
             };
 
             localStorage.setItem('aquarium_comptes', JSON.stringify(comptes));
-            dirty = false;
-
-            // FIREBASE: décommente quand prêt
-            // if (window.dbSet) {
-            // window.dbSet(window.dbRef(window.db, 'joueurs/' + utilisateurActuel), {
-            // argent, scoreTotal,
-            // poissons: comptes[utilisateurActuel].poissons,
-            // lastUpdate: Date.now()
-            // });
-            // }
         }
 
         function afficherErreur(msg, couleur = '#ff4444') {
@@ -396,27 +380,17 @@
             poissonDiv.style.left = Math.random() * (window.innerWidth - 60) + 'px';
             poissonDiv.style.top = Math.random() * (window.innerHeight - 250) + 120 + 'px';
 
-            if (!animation) poissonDiv.style.transition = 'none';
-
             aquarium.appendChild(poissonDiv);
-
-            const poissonObj = { element: poissonDiv, type: typePoisson, intervalId: null };
-            poissons.push(poissonObj);
+            poissons.push({ element: poissonDiv, type: typePoisson });
             revenuPassif += typePoisson.gainAuto;
-            dirty = true;
 
-            nager(poissonObj);
-            if (!animation) {
-                setTimeout(() => poissonDiv.style.transition = 'transform 0.1s, left 4s linear, top 4s linear', 50);
-            }
-
+            nager(poissonDiv);
             updateUI();
         }
 
         function cliquerPoisson(poissonDiv, typePoisson) {
             argent += typePoisson.gainClic;
             scoreTotal += typePoisson.gainClic;
-            dirty = true;
 
             const bulle = document.createElement('div');
             bulle.className = 'bulle';
@@ -426,20 +400,19 @@
             aquarium.appendChild(bulle);
             setTimeout(() => bulle.remove(), 2000);
 
-            poissonDiv.style.transform += ' scale(1.3)';
-            setTimeout(() => {
-                poissonDiv.style.transform = poissonDiv.style.transform.replace(' scale(1.3)', '');
-            }, 100);
+            const oldTransform = poissonDiv.style.transform;
+            poissonDiv.style.transform = oldTransform + ' scale(1.3)';
+            setTimeout(() => poissonDiv.style.transform = oldTransform, 100);
 
             updateUI();
         }
 
-        function nager(poissonObj) {
-            const poissonDiv = poissonObj.element;
+        function nager(poissonDiv) {
             function bouger() {
                 let newX = Math.random() * (window.innerWidth - 60);
                 let newY = Math.random() * (window.innerHeight - 250) + 120;
                 const currentX = parseFloat(poissonDiv.style.left) || 0;
+
                 if (newX < currentX) {
                     poissonDiv.style.transform = 'scaleX(-1)';
                 } else {
@@ -448,8 +421,8 @@
                 poissonDiv.style.left = newX + 'px';
                 poissonDiv.style.top = newY + 'px';
             }
-            bouger();
-            poissonObj.intervalId = setInterval(bouger, 4000);
+            setTimeout(bouger, 100);
+            poissonDiv.intervalId = setInterval(bouger, 4000);
         }
 
         function genererShop() {
@@ -478,7 +451,7 @@
             const typePoisson = TYPES_POISSONS[index];
             if (argent >= typePoisson.prix) {
                 argent -= typePoisson.prix;
-                creerPoisson(typePoisson, true);
+                creerPoisson(typePoisson);
                 genererShop();
                 fermerShop();
             }
@@ -488,9 +461,9 @@
         function ouvrirLeaderboard() {
             const comptes = JSON.parse(localStorage.getItem('aquarium_comptes') || '{}');
             const classement = Object.entries(comptes)
-             .map(([nom, data]) => ({ nom, score: data.scoreTotal || 0, poissons: data.poissons?.reduce((a,b) => a + b.count, 0) || 0 }))
-             .sort((a, b) => b.score - a.score)
-             .slice(0, 10);
+            .map(([nom, data]) => ({ nom, score: data.scoreTotal || 0, poissons: data.poissons?.reduce((a,b) => a + b.count, 0) || 0 }))
+            .sort((a, b) => b.score - a.score)
+            .slice(0, 10);
 
             const list = document.getElementById('leaderboardList');
             list.innerHTML = '';
