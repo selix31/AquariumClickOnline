@@ -196,6 +196,38 @@
         <button onclick="fermerLeaderboard()">Fermer</button>
     </div>
 
+    <!-- SDK Firebase App + Database -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+    <!-- Config Firebase -->
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAo0yTTheo9sp1SfUqMlHxtQdC3IRAPB5g",
+            authDomain: "aquarium-click-online.firebaseapp.com",
+            databaseURL: "https://aquarium-click-online-default-rtdb.firebaseio.com",
+            projectId: "aquarium-click-online",
+            storageBucket: "aquarium-click-online.firebasestorage.app",
+            messagingSenderId: "108301546909",
+            appId: "1:108301546909:web:c644cab56e559cbd372b74",
+            measurementId: "G-B1K872ZP67"
+        };
+
+        // Initialiser Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Fonction pour envoyer le score
+        function envoyerScore(pseudo, score) {
+            if(!pseudo) return;
+            database.ref('classement/' + pseudo).set({
+                nom: pseudo,
+                points: score
+            });
+        }
+    </script>
+
+    <!-- Script du jeu -->
     <script>
         let utilisateurActuel = null;
         let argent = 0;
@@ -203,6 +235,7 @@
         let poissonId = 0;
         let revenuPassif = 0;
         let scoreTotal = 0;
+        let leaderboardListener = null;
 
         const TYPES_POISSONS = [
             { emoji: '🐟', nom: 'Poisson Rouge', prix: 0, gainClic: 1, gainAuto: 0 },
@@ -235,7 +268,10 @@
         }, 1000);
 
         setInterval(() => {
-            if (utilisateurActuel) sauvegarderProgression();
+            if (utilisateurActuel) {
+                sauvegarderProgression();
+                envoyerScore(utilisateurActuel, Math.floor(scoreTotal));
+            }
         }, 5000);
 
         // === HASH MOT DE PASSE ===
@@ -333,6 +369,7 @@
 
         function seDeconnecter() {
             sauvegarderProgression();
+            envoyerScore(utilisateurActuel, Math.floor(scoreTotal));
             poissons.forEach(p => clearInterval(p.element.intervalId));
             localStorage.removeItem('aquarium_utilisateur_actuel');
             location.reload();
@@ -350,7 +387,7 @@
             });
 
             comptes[utilisateurActuel] = {
-             ...comptes[utilisateurActuel],
+               ...comptes[utilisateurActuel],
                 argent: argent,
                 scoreTotal: scoreTotal,
                 poissons: Object.entries(poissonsSauvegarde).map(([type, count]) => ({ type: parseInt(type), count }))
@@ -425,6 +462,13 @@
             poissonDiv.intervalId = setInterval(bouger, 4000);
         }
 
+        function updateUI() {
+            argentElement.innerText = Math.floor(argent);
+            nbPoissonsElement.innerText = poissons.length;
+            revenuSecElement.innerText = revenuPassif.toFixed(1);
+            scoreTotalElement.innerText = Math.floor(scoreTotal);
+        }
+
         function genererShop() {
             const shopItems = document.getElementById('shopItems');
             shopItems.innerHTML = '';
@@ -453,48 +497,62 @@
                 argent -= typePoisson.prix;
                 creerPoisson(typePoisson);
                 genererShop();
-                fermerShop();
+                updateUI();
             }
         }
 
-        // === CLASSEMENT ===
+        function ouvrirShop() {
+            genererShop();
+            document.getElementById('shop').style.display = 'block';
+        }
+
+        function fermerShop() {
+            document.getElementById('shop').style.display = 'none';
+        }
+
+        // === CLASSEMENT FIREBASE EN TEMPS RÉEL ===
         function ouvrirLeaderboard() {
-            const comptes = JSON.parse(localStorage.getItem('aquarium_comptes') || '{}');
-            const classement = Object.entries(comptes)
-            .map(([nom, data]) => ({ nom, score: data.scoreTotal || 0, poissons: data.poissons?.reduce((a,b) => a + b.count, 0) || 0 }))
-            .sort((a, b) => b.score - a.score)
-            .slice(0, 10);
-
-            const list = document.getElementById('leaderboardList');
-            list.innerHTML = '';
-
-            classement.forEach((joueur, index) => {
-                const item = document.createElement('div');
-                item.className = 'leaderboard-item rank-' + (index + 1);
-                if (joueur.nom === utilisateurActuel) item.style.border = '2px solid white';
-
-                item.innerHTML = `
-                    <div>#${index + 1} ${joueur.nom}</div>
-                    <div>🏆 ${Math.floor(joueur.score)} | 🐠 ${joueur.poissons}</div>
-                `;
-                list.appendChild(item);
-            });
-
             document.getElementById('leaderboard').style.display = 'block';
+            const list = document.getElementById('leaderboardList');
+            list.innerHTML = '<div>Chargement...</div>';
+
+            if (leaderboardListener) {
+                database.ref('classement').off('value', leaderboardListener);
+            }
+
+            leaderboardListener = database.ref('classement')
+              .orderByChild('points')
+              .limitToLast(10)
+              .on('value', (snapshot) => {
+                    const data = snapshot.val();
+                    list.innerHTML = '';
+
+                    if (!data) {
+                        list.innerHTML = '<div>Aucun score pour l\'instant</div>';
+                        return;
+                    }
+
+                    const joueurs = Object.values(data).sort((a, b) => b.points - a.points);
+
+                    joueurs.forEach((joueur, index) => {
+                        const rank = index + 1;
+                        const item = document.createElement('div');
+                        item.className = 'leaderboard-item rank-' + rank;
+                        item.innerHTML = `
+                            <span>${rank}. ${joueur.nom}</span>
+                            <span>${Math.floor(joueur.points)} pts</span>
+                        `;
+                        list.appendChild(item);
+                    });
+                });
         }
 
-        function fermerLeaderboard() { document.getElementById('leaderboard').style.display = 'none'; }
-        function ouvrirShop() { genererShop(); document.getElementById('shop').style.display = 'block'; }
-        function fermerShop() { document.getElementById('shop').style.display = 'none'; }
-
-        function updateUI() {
-            argentElement.innerText = Math.floor(argent);
-            nbPoissonsElement.innerText = poissons.length;
-            revenuSecElement.innerText = revenuPassif.toFixed(1);
-            scoreTotalElement.innerText = Math.floor(scoreTotal);
+        function fermerLeaderboard() {
+            document.getElementById('leaderboard').style.display = 'none';
+            if (leaderboardListener) {
+                database.ref('classement').off('value', leaderboardListener);
+            }
         }
-
-        window.addEventListener('beforeunload', sauvegarderProgression);
     </script>
 </body>
 </html>
