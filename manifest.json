@@ -1,0 +1,17 @@
+{
+  "name": "Survival Guner",
+  "short_name": "Survival Guner",
+  "start_url": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#111827",
+  "theme_color": "#111827",
+  "icons": [
+    {
+      "src": "Icone-MonsterSurvival.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
