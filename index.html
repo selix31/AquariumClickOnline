@@ -6,41 +6,7 @@
 <meta name="viewport"
 content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 
-<title>Survival Guner</title>
-
-<!-- =========================
-     ICÔNE DU JEU
-========================= -->
-
-<link rel="icon"
-      type="image/png"
-      href="Icone-MonsterSurvival.png">
-
-<link rel="apple-touch-icon"
-      href="Icone-MonsterSurvival.png">
-
-<!-- =========================
-     INSTALLATION MOBILE
-========================= -->
-
-<link rel="manifest"
-      href="manifest.json">
-
-<meta name="mobile-web-app-capable"
-      content="yes">
-
-<meta name="apple-mobile-web-app-capable"
-      content="yes">
-
-<meta name="apple-mobile-web-app-status-bar-style"
-      content="black">
-
-<meta name="apple-mobile-web-app-title"
-      content="Survival Guner">
-
-<meta name="theme-color"
-      content="#111827">
-
+<title>Monster Survival</title>
 
 <style>
 
@@ -624,6 +590,8 @@ button:active{
 
   <div id="upgradePanel">
 
+    <!-- BOUTON FERMER EN HAUT -->
+
     <button id="closeUpgrade">
       ✕
     </button>
@@ -764,7 +732,7 @@ button:active{
 <div id="startScreen">
 
   <h1>
-    👾 Survival Guner
+    👾 Monster Survival
   </h1>
 
   <p>
@@ -991,4 +959,1931 @@ function loadUpgrades(){
 
 }
 
-function save
+function saveUpgrades(){
+
+  localStorage.setItem(
+    "monsterSurvivalUpgrades",
+    JSON.stringify(upgrades)
+  );
+
+}
+
+loadUpgrades();
+
+
+/* =====================================================
+   PRIX
+===================================================== */
+
+function getHealthCost(){
+
+  return 50+
+  upgrades.health*50;
+
+}
+
+function getFireCost(){
+
+  return 75+
+  upgrades.fire*75;
+
+}
+
+function getDamageCost(){
+
+  return 100+
+  upgrades.damage*100;
+
+}
+
+function getSpeedCost(){
+
+  return 60+
+  upgrades.speed*60;
+
+}
+
+
+/* =====================================================
+   JOUEUR
+===================================================== */
+
+function createPlayer(){
+
+  const maxHealth=
+    100+
+    upgrades.health*25;
+
+  return{
+
+    x:WORLD_WIDTH/2,
+
+    y:WORLD_HEIGHT/2,
+
+    radius:22,
+
+    speed:
+      300+
+      upgrades.speed*25,
+
+    health:maxHealth,
+
+    maxHealth:maxHealth,
+
+    damage:
+      25+
+      upgrades.damage*10,
+
+    fireRate:
+      Math.max(
+        .08,
+        .35-
+        upgrades.fire*.035
+      ),
+
+    bulletSpeed:700,
+
+    invincible:0
+
+  };
+
+}
+
+
+/* =====================================================
+   MONSTRES
+===================================================== */
+
+function createEnemy(){
+
+  const angle=
+    Math.random()*
+    Math.PI*2;
+
+  const distance=
+    650+
+    Math.random()*500;
+
+  let x=
+    player.x+
+    Math.cos(angle)*
+    distance;
+
+  let y=
+    player.y+
+    Math.sin(angle)*
+    distance;
+
+  x=Math.max(
+    40,
+    Math.min(
+      WORLD_WIDTH-40,
+      x
+    )
+  );
+
+  y=Math.max(
+    40,
+    Math.min(
+      WORLD_HEIGHT-40,
+      y
+    )
+  );
+
+  const type=
+    Math.random();
+
+  if(type<.75){
+
+    return{
+
+      x:x,
+      y:y,
+
+      radius:18,
+
+      speed:
+        65+
+        wave*3,
+
+      health:
+        50+
+        wave*5,
+
+      maxHealth:
+        50+
+        wave*5,
+
+      damage:12,
+
+      color:"#ef4444"
+
+    };
+
+  }
+
+  return{
+
+    x:x,
+    y:y,
+
+    radius:26,
+
+    speed:
+      42+
+      wave*2,
+
+    health:
+      120+
+      wave*10,
+
+    maxHealth:
+      120+
+      wave*10,
+
+    damage:20,
+
+    color:"#a855f7"
+
+  };
+
+}
+
+
+/* =====================================================
+   CLAVIER
+===================================================== */
+
+window.addEventListener(
+  "keydown",
+  e=>{
+
+    keys[
+      e.key.toLowerCase()
+    ]=true;
+
+  }
+);
+
+window.addEventListener(
+  "keyup",
+  e=>{
+
+    keys[
+      e.key.toLowerCase()
+    ]=false;
+
+  }
+);
+
+
+/* =====================================================
+   JOYSTICK
+===================================================== */
+
+let joystickActive=false;
+
+function updateJoystick(
+  clientX,
+  clientY
+){
+
+  const rect=
+    joystick.getBoundingClientRect();
+
+  const centerX=
+    rect.left+
+    rect.width/2;
+
+  const centerY=
+    rect.top+
+    rect.height/2;
+
+  let dx=
+    clientX-centerX;
+
+  let dy=
+    clientY-centerY;
+
+  const max=42;
+
+  const distance=
+    Math.sqrt(
+      dx*dx+
+      dy*dy
+    );
+
+  if(distance>max){
+
+    dx=
+      dx/distance*
+      max;
+
+    dy=
+      dy/distance*
+      max;
+
+  }
+
+  joystickX=
+    dx/max;
+
+  joystickY=
+    dy/max;
+
+  stick.style.transform=
+    `translate(
+      calc(-50% + ${dx}px),
+      calc(-50% + ${dy}px)
+    )`;
+
+}
+
+function resetJoystick(){
+
+  joystickActive=false;
+
+  joystickX=0;
+  joystickY=0;
+
+  stick.style.transform=
+    "translate(-50%,-50%)";
+
+}
+
+joystick.addEventListener(
+  "pointerdown",
+  e=>{
+
+    if(upgradeOpen)return;
+
+    joystickActive=true;
+
+    joystick.setPointerCapture(
+      e.pointerId
+    );
+
+    updateJoystick(
+      e.clientX,
+      e.clientY
+    );
+
+  }
+);
+
+joystick.addEventListener(
+  "pointermove",
+  e=>{
+
+    if(
+      joystickActive &&
+      !upgradeOpen
+    ){
+
+      updateJoystick(
+        e.clientX,
+        e.clientY
+      );
+
+    }
+
+  }
+);
+
+joystick.addEventListener(
+  "pointerup",
+  resetJoystick
+);
+
+joystick.addEventListener(
+  "pointercancel",
+  resetJoystick
+);
+
+
+/* =====================================================
+   ENNEMI LE PLUS PROCHE
+===================================================== */
+
+function nearestEnemy(){
+
+  let closest=null;
+
+  let closestDistance=
+    Infinity;
+
+  for(
+    const enemy of enemies
+  ){
+
+    const dx=
+      enemy.x-player.x;
+
+    const dy=
+      enemy.y-player.y;
+
+    const distance=
+      dx*dx+
+      dy*dy;
+
+    if(
+      distance<
+      closestDistance
+    ){
+
+      closestDistance=
+        distance;
+
+      closest=
+        enemy;
+
+    }
+
+  }
+
+  return closest;
+
+}
+
+
+/* =====================================================
+   TIR
+===================================================== */
+
+function shoot(){
+
+  const target=
+    nearestEnemy();
+
+  if(!target)return;
+
+  const dx=
+    target.x-player.x;
+
+  const dy=
+    target.y-player.y;
+
+  const distance=
+    Math.sqrt(
+      dx*dx+
+      dy*dy
+    );
+
+  if(distance===0)return;
+
+  bullets.push({
+
+    x:player.x,
+    y:player.y,
+
+    vx:
+      dx/distance*
+      player.bulletSpeed,
+
+    vy:
+      dy/distance*
+      player.bulletSpeed,
+
+    radius:5,
+
+    damage:
+      player.damage
+
+  });
+
+}
+
+
+/* =====================================================
+   PARTICULES
+===================================================== */
+
+function explosion(x,y){
+
+  for(
+    let i=0;
+    i<10;
+    i++
+  ){
+
+    const angle=
+      Math.random()*
+      Math.PI*2;
+
+    const speed=
+      40+
+      Math.random()*120;
+
+    particles.push({
+
+      x:x,
+      y:y,
+
+      vx:
+        Math.cos(angle)*
+        speed,
+
+      vy:
+        Math.sin(angle)*
+        speed,
+
+      life:.5
+
+    });
+
+  }
+
+}
+
+
+/* =====================================================
+   UPDATE
+===================================================== */
+
+function update(dt){
+
+  if(
+    !running ||
+    upgradeOpen
+  ){
+
+    return;
+
+  }
+
+
+  let moveX=
+    joystickX;
+
+  let moveY=
+    joystickY;
+
+
+  if(
+    keys["arrowleft"]||
+    keys["a"]
+  ){
+
+    moveX-=1;
+
+  }
+
+  if(
+    keys["arrowright"]||
+    keys["d"]
+  ){
+
+    moveX+=1;
+
+  }
+
+  if(
+    keys["arrowup"]||
+    keys["w"]
+  ){
+
+    moveY-=1;
+
+  }
+
+  if(
+    keys["arrowdown"]||
+    keys["s"]
+  ){
+
+    moveY+=1;
+
+  }
+
+
+  const length=
+    Math.sqrt(
+      moveX*moveX+
+      moveY*moveY
+    );
+
+
+  if(length>1){
+
+    moveX/=length;
+    moveY/=length;
+
+  }
+
+
+  player.x+=
+    moveX*
+    player.speed*
+    dt;
+
+  player.y+=
+    moveY*
+    player.speed*
+    dt;
+
+
+  player.x=
+    Math.max(
+      player.radius,
+      Math.min(
+        WORLD_WIDTH-
+        player.radius,
+        player.x
+      )
+    );
+
+
+  player.y=
+    Math.max(
+      player.radius,
+      Math.min(
+        WORLD_HEIGHT-
+        player.radius,
+        player.y
+      )
+    );
+
+
+  /* CAMÉRA */
+
+  camera.x=
+    player.x-
+    (W/2)/
+    CAMERA_ZOOM;
+
+  camera.y=
+    player.y-
+    (H/2)/
+    CAMERA_ZOOM;
+
+
+  const visibleWorldWidth=
+    W/CAMERA_ZOOM;
+
+  const visibleWorldHeight=
+    H/CAMERA_ZOOM;
+
+
+  camera.x=
+    Math.max(
+      0,
+      Math.min(
+        WORLD_WIDTH-
+        visibleWorldWidth,
+        camera.x
+      )
+    );
+
+  camera.y=
+    Math.max(
+      0,
+      Math.min(
+        WORLD_HEIGHT-
+        visibleWorldHeight,
+        camera.y
+      )
+    );
+
+
+  if(player.invincible>0){
+
+    player.invincible-=dt;
+
+  }
+
+
+  /* SPAWN */
+
+  spawnTimer-=dt;
+
+  const spawnDelay=
+    Math.max(
+      .15,
+      .8-wave*.035
+    );
+
+
+  if(spawnTimer<=0){
+
+    spawnTimer=
+      spawnDelay;
+
+    const amount=
+      wave>=8 &&
+      Math.random()<.25
+      ?2
+      :1;
+
+
+    for(
+      let i=0;
+      i<amount;
+      i++
+    ){
+
+      enemies.push(
+        createEnemy()
+      );
+
+    }
+
+  }
+
+
+  /* TIR */
+
+  shootTimer-=dt;
+
+
+  if(shootTimer<=0){
+
+    shoot();
+
+    shootTimer=
+      player.fireRate;
+
+  }
+
+
+  /* MONSTRES */
+
+  for(
+    let i=enemies.length-1;
+    i>=0;
+    i--
+  ){
+
+    const enemy=
+      enemies[i];
+
+    const dx=
+      player.x-
+      enemy.x;
+
+    const dy=
+      player.y-
+      enemy.y;
+
+    const distance=
+      Math.sqrt(
+        dx*dx+
+        dy*dy
+      );
+
+
+    if(distance>0){
+
+      enemy.x+=
+        dx/distance*
+        enemy.speed*
+        dt;
+
+      enemy.y+=
+        dy/distance*
+        enemy.speed*
+        dt;
+
+    }
+
+
+    if(
+      distance<
+      enemy.radius+
+      player.radius
+    ){
+
+      if(
+        player.invincible<=0
+      ){
+
+        player.health-=
+          enemy.damage;
+
+        player.invincible=
+          .55;
+
+        explosion(
+          player.x,
+          player.y
+        );
+
+
+        if(
+          player.health<=0
+        ){
+
+          endGame();
+
+          return;
+
+        }
+
+      }
+
+    }
+
+  }
+
+
+  /* BALLES */
+
+  for(
+    let i=bullets.length-1;
+    i>=0;
+    i--
+  ){
+
+    const bullet=
+      bullets[i];
+
+    bullet.x+=
+      bullet.vx*dt;
+
+    bullet.y+=
+      bullet.vy*dt;
+
+    let remove=false;
+
+
+    for(
+      let j=enemies.length-1;
+      j>=0&&!remove;
+      j--
+    ){
+
+      const enemy=
+        enemies[j];
+
+      const dx=
+        bullet.x-
+        enemy.x;
+
+      const dy=
+        bullet.y-
+        enemy.y;
+
+      const distance=
+        Math.sqrt(
+          dx*dx+
+          dy*dy
+        );
+
+
+      if(
+        distance<
+        bullet.radius+
+        enemy.radius
+      ){
+
+        enemy.health-=
+          bullet.damage;
+
+        remove=true;
+
+
+        if(
+          enemy.health<=0
+        ){
+
+          score+=10;
+
+          kills++;
+
+          coins+=10;
+
+          explosion(
+            enemy.x,
+            enemy.y
+          );
+
+          enemies.splice(
+            j,
+            1
+          );
+
+        }
+
+      }
+
+    }
+
+
+    if(
+      bullet.x<-100||
+      bullet.x>
+      WORLD_WIDTH+100||
+      bullet.y<-100||
+      bullet.y>
+      WORLD_HEIGHT+100
+    ){
+
+      remove=true;
+
+    }
+
+
+    if(remove){
+
+      bullets.splice(
+        i,
+        1
+      );
+
+    }
+
+  }
+
+
+  /* PARTICULES */
+
+  for(
+    let i=particles.length-1;
+    i>=0;
+    i--
+  ){
+
+    const p=
+      particles[i];
+
+    p.x+=
+      p.vx*dt;
+
+    p.y+=
+      p.vy*dt;
+
+    p.life-=dt;
+
+
+    if(p.life<=0){
+
+      particles.splice(
+        i,
+        1
+      );
+
+    }
+
+  }
+
+
+  /* VAGUE */
+
+  const newWave=
+    Math.floor(
+      kills/15
+    )+1;
+
+
+  if(newWave!==wave){
+
+    wave=newWave;
+
+  }
+
+
+  /* UI */
+
+  scoreText.textContent=
+    score;
+
+  killsText.textContent=
+    kills;
+
+  waveText.textContent=
+    wave;
+
+
+  const health=
+    Math.max(
+      0,
+      player.health/
+      player.maxHealth*
+      100
+    );
+
+
+  healthBar.style.width=
+    health+"%";
+
+}
+
+
+/* =====================================================
+   DESSIN
+===================================================== */
+
+function draw(){
+
+  ctx.clearRect(
+    0,
+    0,
+    W,
+    H
+  );
+
+
+  ctx.save();
+
+
+  ctx.translate(
+    -camera.x*
+    CAMERA_ZOOM,
+
+    -camera.y*
+    CAMERA_ZOOM
+  );
+
+
+  ctx.scale(
+    CAMERA_ZOOM,
+    CAMERA_ZOOM
+  );
+
+
+  /* SOL */
+
+  ctx.fillStyle=
+    "#243b2a";
+
+  ctx.fillRect(
+    0,
+    0,
+    WORLD_WIDTH,
+    WORLD_HEIGHT
+  );
+
+
+  /* ZONES */
+
+  ctx.fillStyle=
+    "#294b31";
+
+
+  for(
+    let x=0;
+    x<WORLD_WIDTH;
+    x+=400
+  ){
+
+    for(
+      let y=0;
+      y<WORLD_HEIGHT;
+      y+=400
+    ){
+
+      ctx.fillRect(
+        x+20,
+        y+20,
+        340,
+        340
+      );
+
+    }
+
+  }
+
+
+  /* GRILLE */
+
+  ctx.strokeStyle=
+    "#ffffff08";
+
+  ctx.lineWidth=2;
+
+
+  for(
+    let x=0;
+    x<=WORLD_WIDTH;
+    x+=100
+  ){
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+      x,
+      0
+    );
+
+    ctx.lineTo(
+      x,
+      WORLD_HEIGHT
+    );
+
+    ctx.stroke();
+
+  }
+
+
+  for(
+    let y=0;
+    y<=WORLD_HEIGHT;
+    y+=100
+  ){
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+      0,
+      y
+    );
+
+    ctx.lineTo(
+      WORLD_WIDTH,
+      y
+    );
+
+    ctx.stroke();
+
+  }
+
+
+  drawWorldDecorations();
+
+
+  /* PARTICULES */
+
+  for(
+    const p of particles
+  ){
+
+    ctx.globalAlpha=
+      Math.max(
+        0,
+        p.life*2
+      );
+
+    ctx.fillStyle=
+      "#fbbf24";
+
+    ctx.beginPath();
+
+    ctx.arc(
+      p.x,
+      p.y,
+      5,
+      0,
+      Math.PI*2
+    );
+
+    ctx.fill();
+
+  }
+
+  ctx.globalAlpha=1;
+
+
+  /* BALLES */
+
+  for(
+    const bullet of bullets
+  ){
+
+    ctx.fillStyle=
+      "#facc15";
+
+    ctx.shadowColor=
+      "#facc15";
+
+    ctx.shadowBlur=12;
+
+    ctx.beginPath();
+
+    ctx.arc(
+      bullet.x,
+      bullet.y,
+      bullet.radius,
+      0,
+      Math.PI*2
+    );
+
+    ctx.fill();
+
+  }
+
+  ctx.shadowBlur=0;
+
+
+  /* MONSTRES */
+
+  for(
+    const enemy of enemies
+  ){
+
+    ctx.fillStyle=
+      enemy.color;
+
+    ctx.beginPath();
+
+    ctx.arc(
+      enemy.x,
+      enemy.y,
+      enemy.radius,
+      0,
+      Math.PI*2
+    );
+
+    ctx.fill();
+
+
+    ctx.fillStyle=
+      "white";
+
+    ctx.beginPath();
+
+    ctx.arc(
+      enemy.x-
+      enemy.radius*.35,
+
+      enemy.y-
+      enemy.radius*.2,
+
+      enemy.radius*.22,
+
+      0,
+      Math.PI*2
+    );
+
+    ctx.arc(
+      enemy.x+
+      enemy.radius*.35,
+
+      enemy.y-
+      enemy.radius*.2,
+
+      enemy.radius*.22,
+
+      0,
+      Math.PI*2
+    );
+
+    ctx.fill();
+
+
+    ctx.fillStyle=
+      "#111";
+
+    ctx.beginPath();
+
+    ctx.arc(
+      enemy.x-
+      enemy.radius*.35,
+
+      enemy.y-
+      enemy.radius*.2,
+
+      enemy.radius*.09,
+
+      0,
+      Math.PI*2
+    );
+
+    ctx.arc(
+      enemy.x+
+      enemy.radius*.35,
+
+      enemy.y-
+      enemy.radius*.2,
+
+      enemy.radius*.09,
+
+      0,
+      Math.PI*2
+    );
+
+    ctx.fill();
+
+
+    if(
+      enemy.health<
+      enemy.maxHealth
+    ){
+
+      const barWidth=
+        enemy.radius*2.2;
+
+      ctx.fillStyle=
+        "#300";
+
+      ctx.fillRect(
+        enemy.x-
+        barWidth/2,
+
+        enemy.y-
+        enemy.radius-
+        10,
+
+        barWidth,
+        5
+      );
+
+      ctx.fillStyle=
+        "#4ade80";
+
+      ctx.fillRect(
+        enemy.x-
+        barWidth/2,
+
+        enemy.y-
+        enemy.radius-
+        10,
+
+        barWidth*
+        Math.max(
+          0,
+          enemy.health/
+          enemy.maxHealth
+        ),
+
+        5
+      );
+
+    }
+
+  }
+
+
+  /* JOUEUR */
+
+  if(player){
+
+    if(
+      player.invincible<=0||
+      Math.floor(
+        player.invincible*20
+      )%2===0
+    ){
+
+      ctx.fillStyle=
+        "#0006";
+
+      ctx.beginPath();
+
+      ctx.ellipse(
+        player.x,
+        player.y+20,
+        27,
+        10,
+        0,
+        0,
+        Math.PI*2
+      );
+
+      ctx.fill();
+
+
+      ctx.fillStyle=
+        "#3b82f6";
+
+      ctx.beginPath();
+
+      ctx.arc(
+        player.x,
+        player.y,
+        player.radius,
+        0,
+        Math.PI*2
+      );
+
+      ctx.fill();
+
+
+      ctx.fillStyle=
+        "#f1c27d";
+
+      ctx.beginPath();
+
+      ctx.arc(
+        player.x,
+        player.y-6,
+        11,
+        0,
+        Math.PI*2
+      );
+
+      ctx.fill();
+
+
+      const target=
+        nearestEnemy();
+
+
+      if(target){
+
+        const angle=
+          Math.atan2(
+            target.y-player.y,
+            target.x-player.x
+          );
+
+        ctx.save();
+
+        ctx.translate(
+          player.x,
+          player.y
+        );
+
+        ctx.rotate(angle);
+
+        ctx.fillStyle=
+          "#111827";
+
+        ctx.fillRect(
+          10,
+          -5,
+          32,
+          10
+        );
+
+        ctx.restore();
+
+      }
+
+    }
+
+  }
+
+
+  /* BORDURE */
+
+  ctx.strokeStyle=
+    "#111827";
+
+  ctx.lineWidth=30;
+
+  ctx.strokeRect(
+    0,
+    0,
+    WORLD_WIDTH,
+    WORLD_HEIGHT
+  );
+
+
+  ctx.restore();
+
+}
+
+
+/* =====================================================
+   DÉCOR
+===================================================== */
+
+function drawWorldDecorations(){
+
+  const positions=[
+
+    [250,300],
+    [600,550],
+    [1100,250],
+    [1500,500],
+    [2200,300],
+    [2700,650],
+
+    [300,1200],
+    [800,1450],
+    [1300,1150],
+    [1900,1300],
+    [2500,1150],
+
+    [450,2200],
+    [1000,2500],
+    [1600,2100],
+    [2200,2400],
+    [2750,2200],
+
+    [500,2800],
+    [1200,2850],
+    [2100,2800],
+    [2600,2700]
+
+  ];
+
+
+  for(
+    const pos of positions
+  ){
+
+    const x=pos[0];
+    const y=pos[1];
+
+
+    ctx.fillStyle=
+      "#70452a";
+
+    ctx.fillRect(
+      x-8,
+      y,
+      16,
+      45
+    );
+
+
+    ctx.fillStyle=
+      "#166534";
+
+    ctx.beginPath();
+
+    ctx.arc(
+      x,
+      y-12,
+      35,
+      0,
+      Math.PI*2
+    );
+
+    ctx.fill();
+
+
+    ctx.fillStyle=
+      "#15803d";
+
+    ctx.beginPath();
+
+    ctx.arc(
+      x-20,
+      y-5,
+      25,
+      0,
+      Math.PI*2
+    );
+
+    ctx.arc(
+      x+20,
+      y-5,
+      25,
+      0,
+      Math.PI*2
+    );
+
+    ctx.fill();
+
+  }
+
+}
+
+
+/* =====================================================
+   MENU AMÉLIORATIONS
+===================================================== */
+
+function updateUpgradeMenu(){
+
+  coinsText.textContent=
+    "💰 "+coins;
+
+
+  document.getElementById(
+    "healthLevel"
+  ).textContent=
+    "Niveau "+
+    upgrades.health;
+
+
+  document.getElementById(
+    "healthUpgrade"
+  ).textContent=
+    "💰 "+
+    getHealthCost();
+
+
+  document.getElementById(
+    "healthUpgrade"
+  ).disabled=
+    coins<
+    getHealthCost();
+
+
+  document.getElementById(
+    "fireLevel"
+  ).textContent=
+    "Niveau "+
+    upgrades.fire;
+
+
+  document.getElementById(
+    "fireUpgrade"
+  ).textContent=
+    "💰 "+
+    getFireCost();
+
+
+  document.getElementById(
+    "fireUpgrade"
+  ).disabled=
+    coins<
+    getFireCost();
+
+
+  document.getElementById(
+    "damageLevel"
+  ).textContent=
+    "Niveau "+
+    upgrades.damage;
+
+
+  document.getElementById(
+    "damageUpgrade"
+  ).textContent=
+    "💰 "+
+    getDamageCost();
+
+
+  document.getElementById(
+    "damageUpgrade"
+  ).disabled=
+    coins<
+    getDamageCost();
+
+
+  document.getElementById(
+    "speedLevel"
+  ).textContent=
+    "Niveau "+
+    upgrades.speed;
+
+
+  document.getElementById(
+    "speedUpgrade"
+  ).textContent=
+    "💰 "+
+    getSpeedCost();
+
+
+  document.getElementById(
+    "speedUpgrade"
+  ).disabled=
+    coins<
+    getSpeedCost();
+
+}
+
+
+/* =====================================================
+   OUVRIR / FERMER
+===================================================== */
+
+function openUpgradeMenu(){
+
+  if(!running)return;
+
+  upgradeOpen=true;
+
+  resetJoystick();
+
+  updateUpgradeMenu();
+
+  upgradeMenu.style.display=
+    "flex";
+
+}
+
+
+function closeUpgradeMenu(){
+
+  upgradeOpen=false;
+
+  upgradeMenu.style.display=
+    "none";
+
+}
+
+
+document.getElementById(
+  "upgradeButton"
+).addEventListener(
+  "click",
+  openUpgradeMenu
+);
+
+
+document.getElementById(
+  "closeUpgrade"
+).addEventListener(
+  "click",
+  closeUpgradeMenu
+);
+
+
+/* =====================================================
+   AMÉLIORATION VIE
+===================================================== */
+
+document.getElementById(
+  "healthUpgrade"
+).addEventListener(
+  "click",
+  ()=>{
+
+    const cost=
+      getHealthCost();
+
+    if(coins<cost)return;
+
+    coins-=cost;
+
+    upgrades.health++;
+
+
+    if(player){
+
+      player.maxHealth+=25;
+
+      player.health+=25;
+
+    }
+
+
+    saveUpgrades();
+
+    updateUpgradeMenu();
+
+  }
+);
+
+
+/* =====================================================
+   AMÉLIORATION TIR
+===================================================== */
+
+document.getElementById(
+  "fireUpgrade"
+).addEventListener(
+  "click",
+  ()=>{
+
+    const cost=
+      getFireCost();
+
+    if(coins<cost)return;
+
+    coins-=cost;
+
+    upgrades.fire++;
+
+
+    if(player){
+
+      player.fireRate=
+        Math.max(
+          .08,
+          .35-
+          upgrades.fire*.035
+        );
+
+    }
+
+
+    saveUpgrades();
+
+    updateUpgradeMenu();
+
+  }
+);
+
+
+/* =====================================================
+   AMÉLIORATION DÉGÂTS
+===================================================== */
+
+document.getElementById(
+  "damageUpgrade"
+).addEventListener(
+  "click",
+  ()=>{
+
+    const cost=
+      getDamageCost();
+
+    if(coins<cost)return;
+
+    coins-=cost;
+
+    upgrades.damage++;
+
+
+    if(player){
+
+      player.damage=
+        25+
+        upgrades.damage*10;
+
+    }
+
+
+    saveUpgrades();
+
+    updateUpgradeMenu();
+
+  }
+);
+
+
+/* =====================================================
+   AMÉLIORATION VITESSE
+===================================================== */
+
+document.getElementById(
+  "speedUpgrade"
+).addEventListener(
+  "click",
+  ()=>{
+
+    const cost=
+      getSpeedCost();
+
+    if(coins<cost)return;
+
+    coins-=cost;
+
+    upgrades.speed++;
+
+
+    if(player){
+
+      player.speed=
+        300+
+        upgrades.speed*25;
+
+    }
+
+
+    saveUpgrades();
+
+    updateUpgradeMenu();
+
+  }
+);
+
+
+/* =====================================================
+   BOUCLE
+===================================================== */
+
+function loop(time){
+
+  if(!lastTime){
+
+    lastTime=time;
+
+  }
+
+  let dt=
+    (time-lastTime)/1000;
+
+  lastTime=time;
+
+  dt=Math.min(
+    dt,
+    .05
+  );
+
+  update(dt);
+
+  draw();
+
+  requestAnimationFrame(
+    loop
+  );
+
+}
+
+requestAnimationFrame(
+  loop
+);
+
+
+/* =====================================================
+   DÉMARRER
+===================================================== */
+
+function startGame(){
+
+  score=0;
+
+  kills=0;
+
+  wave=1;
+
+  enemies=[];
+
+  bullets=[];
+
+  particles=[];
+
+  player=
+    createPlayer();
+
+
+  camera.x=
+    player.x-
+    (W/2)/
+    CAMERA_ZOOM;
+
+
+  camera.y=
+    player.y-
+    (H/2)/
+    CAMERA_ZOOM;
+
+
+  startScreen.style.display=
+    "none";
+
+  gameOverScreen.style.display=
+    "none";
+
+  upgradeMenu.style.display=
+    "none";
+
+  upgradeOpen=false;
+
+  running=true;
+
+}
+
+
+document.getElementById(
+  "startBtn"
+).addEventListener(
+  "click",
+  startGame
+);
+
+
+/* =====================================================
+   GAME OVER
+===================================================== */
+
+function endGame(){
+
+  running=false;
+
+  upgradeOpen=false;
+
+  upgradeMenu.style.display=
+    "none";
+
+  finalScore.textContent=
+    score;
+
+  finalKills.textContent=
+    kills;
+
+  gameOverScreen.style.display=
+    "flex";
+
+}
+
+
+document.getElementById(
+  "restartBtn"
+).addEventListener(
+  "click",
+  startGame
+);
+
+</script>
+
+</div>
+
+</body>
+</html>
