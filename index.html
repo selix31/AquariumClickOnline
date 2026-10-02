@@ -2,529 +2,362 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-
-<meta name="viewport"
-content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#111827">
 <title>Monster Survival</title>
 
 <style>
-
-*{
-  box-sizing:border-box;
-  -webkit-tap-highlight-color:transparent;
-}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 
 html,body{
-  margin:0;
-  width:100%;
-  height:100%;
-  overflow:hidden;
-  background:#111827;
-  font-family:Arial,sans-serif;
-  touch-action:none;
-}
-
-body{
-  display:flex;
-  justify-content:center;
-  align-items:center;
+margin:0;width:100%;height:100%;overflow:hidden;
+background:#111827;font-family:Arial,sans-serif;
+touch-action:none
 }
 
 #game{
-  position:relative;
-  width:100vw;
-  height:100vh;
-  overflow:hidden;
-  background:#17212b;
+position:relative;width:100vw;height:100vh;
+overflow:hidden;background:#17212b
 }
 
 canvas{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
+position:absolute;inset:0;width:100%;height:100%
 }
 
-
-/* =========================
-   INTERFACE
-========================= */
-
 #ui{
-  position:absolute;
-  top:12px;
-  left:12px;
-  right:12px;
-
-  display:flex;
-  justify-content:space-between;
-  gap:8px;
-
-  pointer-events:none;
-  z-index:5;
+position:absolute;top:12px;left:12px;right:12px;
+display:flex;justify-content:space-between;gap:8px;
+pointer-events:none;z-index:5
 }
 
 .box{
-  background:#000b;
-  color:white;
-
-  border:2px solid #ffffff33;
-  border-radius:14px;
-
-  padding:8px 12px;
-
-  font-weight:bold;
-  font-size:14px;
-
-  backdrop-filter:blur(5px);
+background:#000b;color:white;
+border:2px solid #ffffff33;
+border-radius:14px;
+padding:8px 12px;
+font-weight:bold;font-size:14px;
+backdrop-filter:blur(5px)
 }
 
-#healthBox{
-  width:150px;
-}
+#healthBox{width:150px}
 
 #healthBar{
-  width:100%;
-  height:10px;
-
-  margin-top:5px;
-
-  background:#401414;
-  border-radius:10px;
-
-  overflow:hidden;
+width:100%;height:10px;margin-top:5px;
+background:#401414;border-radius:10px;overflow:hidden
 }
 
 #health{
-  width:100%;
-  height:100%;
-
-  background:#35d05b;
+width:100%;height:100%;
+background:#35d05b
 }
 
-
-/* =========================
-   BOUTON AMÉLIORATIONS
-========================= */
+#upgradeButton,#weaponButton{
+position:absolute;right:15px;z-index:10;
+border:0;border-radius:12px;
+padding:11px 15px;font-size:15px;
+font-weight:bold;
+box-shadow:0 4px 12px #0006
+}
 
 #upgradeButton{
-
-  position:absolute;
-
-  top:75px;
-  right:15px;
-
-  z-index:10;
-
-  border:0;
-  border-radius:12px;
-
-  padding:11px 15px;
-
-  background:#f59e0b;
-  color:#241000;
-
-  font-size:15px;
-  font-weight:bold;
-
-  box-shadow:0 4px 12px #0006;
+top:75px;
+background:#f59e0b;
+color:#241000
 }
 
+#weaponButton{
+top:125px;
+background:#ef4444;
+color:white
+}
 
-/* =========================
-   JOYSTICK
-========================= */
+#turretButton{
+position:absolute;top:75px;left:15px;
+z-index:10;border:0;border-radius:12px;
+padding:11px 15px;
+background:#22c55e;color:#062b12;
+font-size:15px;font-weight:bold;
+box-shadow:0 4px 12px #0006
+}
 
 #joystick{
-
-  position:absolute;
-
-  left:25px;
-  bottom:25px;
-
-  width:125px;
-  height:125px;
-
-  border-radius:50%;
-
-  background:#ffffff18;
-
-  border:3px solid #ffffff35;
-
-  z-index:10;
+position:absolute;left:0;top:0;
+width:125px;height:125px;
+margin-left:-62.5px;
+margin-top:-62.5px;
+border-radius:50%;
+background:#ffffff18;
+border:3px solid #ffffff35;
+z-index:10;
+touch-action:none;
+display:none;
+pointer-events:none
 }
 
 #stick{
-
-  position:absolute;
-
-  width:58px;
-  height:58px;
-
-  left:50%;
-  top:50%;
-
-  transform:translate(-50%,-50%);
-
-  border-radius:50%;
-
-  background:#ffffff55;
-
-  border:3px solid #ffffff66;
+position:absolute;
+width:58px;height:58px;
+left:50%;top:50%;
+transform:translate(-50%,-50%);
+border-radius:50%;
+background:#ffffff55;
+border:3px solid #ffffff66;
+pointer-events:none
 }
 
-
-/* =========================
-   INFO TIR
-========================= */
-
-#shootInfo{
-
-  position:absolute;
-
-  right:20px;
-  bottom:30px;
-
-  padding:12px 16px;
-
-  background:#0009;
-  color:white;
-
-  border-radius:14px;
-
-  font-weight:bold;
-
-  z-index:5;
+#upgradeMenu,#weaponMenu,#turretMenu{
+position:absolute;inset:0;
+z-index:25;display:none;
+align-items:center;
+justify-content:center;
+background:#000b;color:white
 }
 
-
-/* =========================
-   MENU AMÉLIORATIONS
-========================= */
-
-#upgradeMenu{
-
-  position:absolute;
-
-  inset:0;
-
-  z-index:25;
-
-  display:none;
-
-  align-items:center;
-  justify-content:center;
-
-  background:#000b;
-
-  color:white;
+#upgradePanel,#weaponPanel,#turretPanel{
+position:relative;
+width:min(450px,92vw);
+max-height:90vh;
+overflow-y:auto;
+background:#1f2937;
+border:2px solid #ffffff22;
+border-radius:20px;
+padding:20px;
+box-shadow:0 10px 40px #0009
 }
 
-#upgradePanel{
-
-  position:relative;
-
-  width:min(430px,92vw);
-
-  max-height:90vh;
-
-  overflow-y:auto;
-
-  background:#1f2937;
-
-  border:2px solid #ffffff22;
-
-  border-radius:20px;
-
-  padding:20px;
-
-  box-shadow:0 10px 40px #0009;
+#upgradePanel h2,
+#weaponPanel h2,
+#turretPanel h2{
+text-align:center;
+margin:0 0 8px;
+font-size:28px
 }
 
-#upgradePanel h2{
-
-  text-align:center;
-
-  margin:0 0 8px;
-
-  font-size:28px;
+#coinsText,#weaponCoins,#turretCoins{
+text-align:center;
+color:#ffd45e;
+font-size:20px;
+font-weight:bold;
+margin-bottom:18px
 }
 
-#coinsText{
-
-  text-align:center;
-
-  color:#ffd45e;
-
-  font-size:20px;
-
-  font-weight:bold;
-
-  margin-bottom:18px;
+#closeUpgrade,#closeWeapon,#closeTurret{
+position:absolute;
+top:12px;right:12px;
+width:42px;height:42px;
+padding:0;border:0;
+border-radius:50%;
+background:#ef4444;
+color:white;
+font-size:22px;
+font-weight:bold
 }
 
-
-/* =========================
-   BOUTON FERMER
-========================= */
-
-#closeUpgrade{
-
-  position:absolute;
-
-  top:12px;
-  right:12px;
-
-  width:42px;
-  height:42px;
-
-  padding:0;
-
-  border:0;
-
-  border-radius:50%;
-
-  background:#ef4444;
-
-  color:white;
-
-  font-size:22px;
-
-  font-weight:bold;
-
-  display:flex;
-
-  align-items:center;
-  justify-content:center;
-
-  cursor:pointer;
+.upgrade,.weaponCard,.turretCard{
+background:#111827;
+border:2px solid #ffffff15;
+border-radius:15px;
+padding:14px;
+margin-bottom:12px
 }
 
-
-/* =========================
-   AMÉLIORATIONS
-========================= */
-
-.upgrade{
-
-  background:#111827;
-
-  border:2px solid #ffffff15;
-
-  border-radius:15px;
-
-  padding:14px;
-
-  margin-bottom:12px;
+.upgradeTitle,.weaponTitle,.turretTitle{
+font-size:18px;
+font-weight:bold;
+margin-bottom:5px
 }
 
-.upgradeTitle{
-
-  font-size:18px;
-  font-weight:bold;
-
-  margin-bottom:5px;
+.upgradeDescription,
+.weaponDescription,
+.turretDescription{
+font-size:13px;
+opacity:.75;
+margin-bottom:10px
 }
 
-.upgradeDescription{
-
-  font-size:13px;
-
-  opacity:.75;
-
-  margin-bottom:10px;
+.upgradeBottom,.weaponBottom,.turretBottom{
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:8px
 }
 
-.upgradeBottom{
-
-  display:flex;
-
-  align-items:center;
-  justify-content:space-between;
-
-  gap:8px;
+.upgradeLevel,.weaponStats,.turretStats{
+font-size:13px;
+color:#ffd45e
 }
 
-.upgradeLevel{
-
-  font-size:13px;
-
-  color:#ffd45e;
+.upgrade button,.weaponCard button,.turretCard button{
+border:0;
+border-radius:10px;
+padding:9px 12px;
+background:#22c55e;
+color:#062b12;
+font-weight:bold;
+font-size:14px
 }
 
-.upgrade button{
-
-  border:0;
-
-  border-radius:10px;
-
-  padding:9px 12px;
-
-  background:#22c55e;
-
-  color:#062b12;
-
-  font-weight:bold;
-
-  font-size:14px;
+.upgrade button:disabled,
+.weaponCard button:disabled,
+.turretCard button:disabled{
+background:#555;
+color:#aaa
 }
 
-.upgrade button:disabled{
-
-  background:#555;
-
-  color:#aaa;
-
+.weaponCard.selected{
+border-color:#f59e0b;
+box-shadow:0 0 15px #f59e0b55
 }
 
+.weaponVisual{
+height:125px;
+margin:-3px 0 10px;
+display:flex;
+align-items:center;
+justify-content:center;
+background:#0b1017;
+border-radius:12px;
+border:1px solid #ffffff12;
+overflow:hidden
+}
 
-/* =========================
-   ÉCRANS
-========================= */
+.weaponVisual svg{
+width:92%;
+height:105px;
+overflow:visible
+}
 
-#gameOver,
-#startScreen{
+.weaponVisual .metal{fill:#363b42}
+.weaponVisual .darkMetal{fill:#15181c}
+.weaponVisual .black{fill:#090b0e}
+.weaponVisual .grip{fill:#24282d}
+.weaponVisual .detail{fill:#707781}
+.weaponVisual .wood{fill:#68452e}
+.weaponVisual .woodDark{fill:#3d291d}
+.weaponVisual .orange{fill:#b86b25}
 
-  position:absolute;
+#placementInfo{
+position:absolute;top:50%;left:50%;
+transform:translate(-50%,-50%);
+z-index:15;display:none;
+background:#000d;color:white;
+padding:16px 22px;
+border-radius:15px;
+font-size:18px;
+font-weight:bold;
+text-align:center;
+pointer-events:none
+}
 
-  inset:0;
+#cancelPlacement{
+position:absolute;top:15px;left:50%;
+transform:translateX(-50%);
+z-index:16;display:none;
+background:#ef4444;color:white;
+padding:10px 18px;
+font-size:15px
+}
 
-  z-index:20;
-
-  display:flex;
-
-  align-items:center;
-  justify-content:center;
-
-  flex-direction:column;
-
-  background:#000b;
-
-  color:white;
-
-  text-align:center;
+#gameOver,#startScreen{
+position:absolute;inset:0;
+z-index:20;display:flex;
+align-items:center;
+justify-content:center;
+flex-direction:column;
+background:#000b;color:white;
+text-align:center
 }
 
 #startScreen{
-
-  z-index:30;
-
-  background:
-  radial-gradient(circle,#374151,#111827);
+z-index:30;
+background:radial-gradient(circle,#374151,#111827)
 }
 
-#gameOver{
-  display:none;
-}
+#gameOver{display:none}
 
-#startScreen h1,
-#gameOver h1{
-
-  margin:0 0 10px;
-
-  font-size:42px;
+#startScreen h1,#gameOver h1{
+margin:0 0 10px;
+font-size:42px
 }
 
 #startScreen p{
-
-  max-width:360px;
-
-  line-height:1.5;
-
-  opacity:.85;
-
-  padding:0 20px;
+max-width:360px;
+line-height:1.5;
+opacity:.85;
+padding:0 20px
 }
 
 button{
-
-  border:0;
-
-  border-radius:14px;
-
-  padding:14px 25px;
-
-  font-size:18px;
-
-  font-weight:bold;
-
-  background:#f59e0b;
-
-  color:#241000;
-
-  cursor:pointer;
+border:0;
+border-radius:14px;
+padding:14px 25px;
+font-size:18px;
+font-weight:bold;
+background:#f59e0b;
+color:#241000;
+cursor:pointer
 }
 
 button:active{
-
-  transform:scale(.96);
+transform:scale(.96)
 }
-
-
-/* =========================
-   MOBILE
-========================= */
 
 @media(max-width:500px){
 
-  #ui{
-
-    top:8px;
-    left:8px;
-    right:8px;
-
-  }
-
-  .box{
-
-    font-size:11px;
-
-    padding:7px 8px;
-
-  }
-
-  #healthBox{
-
-    width:120px;
-
-  }
-
-  #upgradeButton{
-
-    top:70px;
-    right:10px;
-
-    font-size:13px;
-
-    padding:9px 11px;
-
-  }
-
-  #joystick{
-
-    width:115px;
-    height:115px;
-
-    left:18px;
-    bottom:18px;
-
-  }
-
-  #shootInfo{
-
-    right:12px;
-    bottom:20px;
-
-    font-size:12px;
-
-  }
-
+#ui{
+top:8px;
+left:8px;
+right:8px
 }
 
+.box{
+font-size:11px;
+padding:7px 8px
+}
+
+#healthBox{
+width:120px
+}
+
+#upgradeButton{
+top:70px;
+right:10px;
+font-size:13px;
+padding:9px 11px
+}
+
+#weaponButton{
+top:115px;
+right:10px;
+font-size:13px;
+padding:9px 11px
+}
+
+#turretButton{
+top:70px;
+left:10px;
+font-size:13px;
+padding:9px 11px
+}
+
+#joystick{
+width:115px;
+height:115px;
+margin-left:-57.5px;
+margin-top:-57.5px
+}
+
+.weaponVisual{
+height:115px
+}
+
+.weaponVisual svg{
+height:98px
+}
+
+}
 </style>
 </head>
-
 
 <body>
 
@@ -532,2353 +365,4564 @@ button:active{
 
 <canvas id="canvas"></canvas>
 
-
-<!-- INTERFACE -->
-
 <div id="ui">
 
-  <div class="box" id="healthBox">
+<div class="box" id="healthBox">
+❤️ Vie
+<div id="healthBar">
+<div id="health"></div>
+</div>
+</div>
 
-    ❤️ Vie
+<div class="box">
+👾 <span id="kills">0</span>
+</div>
 
-    <div id="healthBar">
-      <div id="health"></div>
-    </div>
+<div class="box">
+🏆 <span id="score">0</span>
+</div>
 
-  </div>
-
-
-  <div class="box">
-    👾 <span id="kills">0</span>
-  </div>
-
-
-  <div class="box">
-    🏆 <span id="score">0</span>
-  </div>
-
-
-  <div class="box">
-    🌊 Vague <span id="wave">1</span>
-  </div>
+<div class="box">
+🌊 Vague <span id="wave">1</span>
+</div>
 
 </div>
 
-
-<!-- BOUTON AMÉLIORATIONS -->
-
-<button id="upgradeButton">
-  ⚙️ AMÉLIORATIONS
-</button>
-
-
-<!-- JOYSTICK -->
+<button id="turretButton">🏰 TOURELLES</button>
+<button id="upgradeButton">⚙️ AMÉLIORATIONS</button>
+<button id="weaponButton"> ARMES</button>
 
 <div id="joystick">
-  <div id="stick"></div>
+<div id="stick"></div>
 </div>
 
-
-<div id="shootInfo">
-  🎯 Tir automatique
+<div id="placementInfo">
+🏰 Tourelle achetée !
+<br><br>
+👆 Touche le terrain pour la déposer
 </div>
 
-
-<!-- MENU AMÉLIORATIONS -->
+<button id="cancelPlacement">ANNULER</button>
 
 <div id="upgradeMenu">
 
-  <div id="upgradePanel">
+<div id="upgradePanel">
 
-    <!-- BOUTON FERMER EN HAUT -->
+<button id="closeUpgrade">✕</button>
 
-    <button id="closeUpgrade">
-      ✕
-    </button>
+<h2>⚙️ Améliorations</h2>
 
+<div id="coinsText">💰 0</div>
 
-    <h2>
-      ⚙️ Améliorations
-    </h2>
+<div class="upgrade">
 
+<div class="upgradeTitle">❤️ Plus de vie</div>
 
-    <div id="coinsText">
-      💰 0
-    </div>
+<div class="upgradeDescription">
+Augmente ta vie maximale de 25.
+</div>
 
+<div class="upgradeBottom">
 
-    <!-- VIE -->
+<div class="upgradeLevel" id="healthLevel">
+Niveau 0
+</div>
 
-    <div class="upgrade">
+<button id="healthUpgrade">
+💰 50
+</button>
 
-      <div class="upgradeTitle">
-        ❤️ Plus de vie
-      </div>
+</div>
+</div>
 
-      <div class="upgradeDescription">
-        Augmente ta vie maximale de 25.
-      </div>
+<div class="upgrade">
 
-      <div class="upgradeBottom">
+<div class="upgradeTitle"> Tir plus rapide</div>
 
-        <div
-        class="upgradeLevel"
-        id="healthLevel">
-          Niveau 0
-        </div>
+<div class="upgradeDescription">
+Ton arme tire plus rapidement.
+</div>
 
-        <button id="healthUpgrade">
-          💰 50
-        </button>
+<div class="upgradeBottom">
 
-      </div>
+<div class="upgradeLevel" id="fireLevel">
+Niveau 0
+</div>
 
-    </div>
+<button id="fireUpgrade">
+💰 75
+</button>
 
+</div>
+</div>
 
-    <!-- TIR -->
+<div class="upgrade">
 
-    <div class="upgrade">
+<div class="upgradeTitle">💥 Plus de dégâts</div>
 
-      <div class="upgradeTitle">
-        🔫 Tir plus rapide
-      </div>
+<div class="upgradeDescription">
+Chaque balle inflige plus de dégâts.
+</div>
 
-      <div class="upgradeDescription">
-        Ton arme tire plus rapidement.
-      </div>
+<div class="upgradeBottom">
 
-      <div class="upgradeBottom">
+<div class="upgradeLevel" id="damageLevel">
+Niveau 0
+</div>
 
-        <div
-        class="upgradeLevel"
-        id="fireLevel">
-          Niveau 0
-        </div>
+<button id="damageUpgrade">
+💰 100
+</button>
 
-        <button id="fireUpgrade">
-          💰 75
-        </button>
+</div>
+</div>
 
-      </div>
+<div class="upgrade">
 
-    </div>
+<div class="upgradeTitle">🏃 Plus de vitesse</div>
 
+<div class="upgradeDescription">
+Déplace ton personnage plus rapidement.
+</div>
 
-    <!-- DÉGÂTS -->
+<div class="upgradeBottom">
 
-    <div class="upgrade">
+<div class="upgradeLevel" id="speedLevel">
+Niveau 0
+</div>
 
-      <div class="upgradeTitle">
-        💥 Plus de dégâts
-      </div>
+<button id="speedUpgrade">
+💰 60
+</button>
 
-      <div class="upgradeDescription">
-        Chaque balle inflige plus de dégâts.
-      </div>
+</div>
+</div>
 
-      <div class="upgradeBottom">
+</div>
+</div>
 
-        <div
-        class="upgradeLevel"
-        id="damageLevel">
-          Niveau 0
-        </div>
+<div id="weaponMenu">
 
-        <button id="damageUpgrade">
-          💰 100
-        </button>
+<div id="weaponPanel">
 
-      </div>
+<button id="closeWeapon">✕</button>
 
-    </div>
+<h2> Boutique d'armes</h2>
 
+<div id="weaponCoins">💰 0</div>
 
-    <!-- VITESSE -->
+<div class="weaponCard" id="pistolCard">
 
-    <div class="upgrade">
+<div class="weaponTitle">
+ Handgun
+</div>
 
-      <div class="upgradeTitle">
-        🏃 Plus de vitesse
-      </div>
+<div class="weaponVisual">
 
-      <div class="upgradeDescription">
-        Déplace ton personnage plus rapidement.
-      </div>
+<svg viewBox="0 0 500 180">
 
-      <div class="upgradeBottom">
+<ellipse cx="250" cy="148" rx="175" ry="13" fill="#00000055"/>
 
-        <div
-        class="upgradeLevel"
-        id="speedLevel">
-          Niveau 0
-        </div>
+<path class="darkMetal" d="M230 108 L263 108 L270 137 L235 137 Z"/>
 
-        <button id="speedUpgrade">
-          💰 60
-        </button>
+<path class="grip"
+d="M218 78
+L260 78
+L282 143
+L247 151
+L225 112 Z"/>
 
-      </div>
+<path class="black" d="M239 108 L267 103 L270 112 L242 117 Z"/>
 
-    </div>
+<path class="black" d="M242 119 L270 114 L273 123 L245 128 Z"/>
 
-  </div>
+<path class="black" d="M245 130 L274 125 L277 134 L248 139 Z"/>
+
+<path class="metal"
+d="M125 67
+L335 67
+L360 78
+L360 101
+L275 101
+L262 91
+L145 91
+L125 82 Z"/>
+
+<path class="darkMetal"
+d="M112 52
+L337 52
+L350 66
+L335 82
+L128 82
+L112 72 Z"/>
+
+<rect class="detail" x="145" y="55" width="6" height="22"/>
+<rect class="detail" x="158" y="55" width="5" height="22"/>
+<rect class="detail" x="171" y="55" width="5" height="22"/>
+<rect class="detail" x="184" y="55" width="5" height="22"/>
+
+<path class="black"
+d="M338 59
+L416 59
+L430 67
+L416 76
+L338 76 Z"/>
+
+<rect class="darkMetal" x="412" y="60" width="22" height="16" rx="3"/>
+
+<path class="black"
+d="M282 48 L300 48 L297 54 L285 54 Z"/>
+
+<path class="black"
+d="M207 91
+Q218 102 208 114
+L199 111
+Q208 101 201 94 Z"/>
+
+<circle class="detail" cx="190" cy="76" r="5"/>
+
+</svg>
 
 </div>
 
+<div class="weaponDescription">
+Handgun précis et équilibré.
+</div>
 
-<!-- ÉCRAN DE DÉPART -->
+<div class="weaponStats">
+💥 Dégâts : 25<br>
+⚡ Cadence : normale<br>
+🎯 Précision : élevée
+</div>
+
+<div class="weaponBottom">
+
+<span id="pistolStatus">
+Gratuit
+</span>
+
+<button id="pistolButton">
+UTILISER
+</button>
+
+</div>
+</div>
+
+<div class="weaponCard" id="smgCard">
+
+<div class="weaponTitle">
+🔥 Mitraillette
+</div>
+
+<div class="weaponVisual">
+
+<svg viewBox="0 0 500 180">
+
+<ellipse cx="250" cy="148" rx="185" ry="13" fill="#00000055"/>
+
+<path class="darkMetal"
+d="M70 62
+L145 62
+L145 88
+L70 82
+L52 73
+L52 67 Z"/>
+
+<rect class="metal" x="120" y="58" width="205" height="48" rx="8"/>
+
+<rect class="darkMetal" x="130" y="48" width="180" height="17" rx="4"/>
+
+<rect class="black" x="315" y="67" width="115" height="15" rx="3"/>
+
+<rect class="detail" x="425" y="64" width="24" height="21" rx="3"/>
+
+<path class="darkMetal"
+d="M205 100
+L237 100
+L245 150
+L215 155
+Z"/>
+
+<path class="grip"
+d="M150 100
+L190 100
+L180 143
+L151 143
+Z"/>
+
+<path class="grip"
+d="M285 101
+L318 101
+L310 138
+L286 138
+Z"/>
+
+<rect class="detail" x="145" y="72" width="55" height="8" rx="3"/>
+
+<rect class="black" x="215" y="70" width="80" height="8" rx="3"/>
+
+<circle class="detail" cx="150" cy="92" r="5"/>
+<circle class="detail" cx="305" cy="91" r="5"/>
+
+</svg>
+
+</div>
+
+<div class="weaponDescription">
+Mitraillette automatique très rapide.
+</div>
+
+<div class="weaponStats">
+💥 Dégâts : 12<br>
+⚡ Cadence : très rapide<br>
+🎯 Précision : moyenne
+</div>
+
+<div class="weaponBottom">
+
+<span id="smgStatus">
+💰 100
+</span>
+
+<button id="smgButton">
+ACHETER
+</button>
+
+</div>
+</div>
+
+<div class="weaponCard" id="rifleCard">
+
+<div class="weaponTitle">
+💥 Shotgun
+</div>
+
+<div class="weaponVisual">
+
+<svg viewBox="0 0 500 180">
+
+<ellipse cx="250" cy="148" rx="190" ry="13" fill="#00000055"/>
+
+<path class="woodDark"
+d="M45 67
+L145 58
+L175 76
+L150 105
+L73 98
+L45 82 Z"/>
+
+<path class="wood"
+d="M55 69
+L137 62
+L159 77
+L140 94
+L76 90
+L55 80 Z"/>
+
+<rect class="darkMetal" x="125" y="60" width="125" height="43" rx="5"/>
+
+<path class="wood"
+d="M225 80
+L345 80
+L345 105
+L225 105 Z"/>
+
+<path class="woodDark"
+d="M240 105
+L330 105
+L321 125
+L250 125 Z"/>
+
+<rect class="black" x="330" y="58" width="115" height="13" rx="3"/>
+<rect class="black" x="330" y="76" width="115" height="13" rx="3"/>
+
+<rect class="darkMetal" x="435" y="56" width="25" height="18" rx="3"/>
+<rect class="darkMetal" x="435" y="74" width="25" height="18" rx="3"/>
+
+<path class="black"
+d="M185 101
+Q198 111 187 123
+L178 119
+Q188 110 181 103 Z"/>
+
+<rect class="detail" x="145" y="68" width="55" height="7" rx="3"/>
+
+<rect class="detail" x="145" y="82" width="42" height="5" rx="2"/>
+
+<path class="detail"
+d="M374 49 L390 49 L388 55 L377 55 Z"/>
+
+</svg>
+
+</div>
+
+<div class="weaponDescription">
+Shotgun puissant qui tire plusieurs projectiles en éventail.
+</div>
+
+<div class="weaponStats">
+💥 Dégâts : 45 par projectile<br>
+⚡ Cadence : lente<br>
+↔️ Dispersion : large
+</div>
+
+<div class="weaponBottom">
+
+<span id="rifleStatus">
+💰 250
+</span>
+
+<button id="rifleButton">
+ACHETER
+</button>
+
+</div>
+</div>
+
+</div>
+</div>
+
+<div id="turretMenu">
+
+<div id="turretPanel">
+
+<button id="closeTurret">✕</button>
+
+<h2>🏰 Boutique de tourelles</h2>
+
+<div id="turretCoins">💰 0</div>
+
+<div class="turretCard">
+
+<div class="turretTitle">
+ Tourelle mitrailleuse
+</div>
+
+<div class="turretDescription">
+Tire très rapidement sur les monstres proches.
+</div>
+
+<div class="turretStats">
+💥 Dégâts : 8<br>
+⚡ Cadence : très rapide<br>
+📡 Portée : 450
+</div>
+
+<div class="turretBottom">
+
+<span>💰 150</span>
+
+<button id="buyMachineTurret">
+ACHETER
+</button>
+
+</div>
+</div>
+
+<div class="turretCard">
+
+<div class="turretTitle">
+💣 Tourelle canon
+</div>
+
+<div class="turretDescription">
+Tire moins souvent mais inflige beaucoup plus de dégâts.
+</div>
+
+<div class="turretStats">
+💥 Dégâts : 35<br>
+⚡ Cadence : normale<br>
+📡 Portée : 500
+</div>
+
+<div class="turretBottom">
+
+<span>💰 250</span>
+
+<button id="buyCannonTurret">
+ACHETER
+</button>
+
+</div>
+</div>
+
+<div class="turretCard">
+
+<div class="turretTitle">
+🎯 Tourelle lourde
+</div>
+
+<div class="turretDescription">
+Très puissante et possède une grande portée.
+</div>
+
+<div class="turretStats">
+💥 Dégâts : 70<br>
+⚡ Cadence : lente<br>
+📡 Portée : 650
+</div>
+
+<div class="turretBottom">
+
+<span>💰 400</span>
+
+<button id="buyHeavyTurret">
+ACHETER
+</button>
+
+</div>
+</div>
+
+</div>
+</div>
 
 <div id="startScreen">
 
-  <h1>
-    👾 Monster Survival
-  </h1>
+<h1>👾 Monster Survival</h1>
 
-  <p>
+<p>
+Explore le monde, évite les monstres et ton arme tirera automatiquement sur l'ennemi le plus proche.
+<br><br>
+Élimine les monstres pour gagner des 💰 pièces et améliorer ton personnage.
+</p>
 
-    Explore le monde, évite les monstres
-    et ton arme tirera automatiquement
-    sur l'ennemi le plus proche.
-
-    <br><br>
-
-    Élimine les monstres pour gagner
-    des 💰 pièces et améliorer ton personnage.
-
-  </p>
-
-  <button id="startBtn">
-    JOUER
-  </button>
+<button id="startBtn">
+JOUER
+</button>
 
 </div>
-
-
-<!-- GAME OVER -->
 
 <div id="gameOver">
 
-  <h1>
-    💀 GAME OVER
-  </h1>
+<h1>💀 GAME OVER</h1>
 
-  <p>
-    Score :
-    <b id="finalScore">0</b>
-  </p>
+<p>
+Score : <b id="finalScore">0</b>
+</p>
 
-  <p>
-    Monstres éliminés :
-    <b id="finalKills">0</b>
-  </p>
+<p>
+Monstres éliminés : <b id="finalKills">0</b>
+</p>
 
-  <button id="restartBtn">
-    REJOUER
-  </button>
+<button id="restartBtn">
+REJOUER
+</button>
 
 </div>
 
-
 <script>
 
-/* =====================================================
-   CANVAS
-===================================================== */
+const $=id=>document.getElementById(id);
 
-const canvas=
-document.getElementById("canvas");
+const canvas=$("canvas");
+const ctx=canvas.getContext("2d");
 
-const ctx=
-canvas.getContext("2d");
+const music=new Audio("Music-Zombie-Guner.mp3");
+music.loop=true;
+music.volume=1;
+music.preload="auto";
 
+let audioCtx=null;
 
-/* =====================================================
-   INTERFACE
-===================================================== */
+function ensureAudio(){
 
-const scoreText=
-document.getElementById("score");
+if(!audioCtx){
 
-const killsText=
-document.getElementById("kills");
+const AudioCtor=
+window.AudioContext||
+window.webkitAudioContext;
 
-const waveText=
-document.getElementById("wave");
+if(AudioCtor)
+audioCtx=new AudioCtor();
 
-const healthBar=
-document.getElementById("health");
+}
 
-const startScreen=
-document.getElementById("startScreen");
+if(audioCtx&&audioCtx.state==="suspended")
+audioCtx.resume().catch(()=>{});
 
-const gameOverScreen=
-document.getElementById("gameOver");
-
-const finalScore=
-document.getElementById("finalScore");
-
-const finalKills=
-document.getElementById("finalKills");
-
-const joystick=
-document.getElementById("joystick");
-
-const stick=
-document.getElementById("stick");
-
-const upgradeMenu=
-document.getElementById("upgradeMenu");
-
-const coinsText=
-document.getElementById("coinsText");
+}
 
 
-/* =====================================================
-   ÉCRAN
-===================================================== */
+/* ================= SONS DES ARMES ================= */
 
-let W=0;
-let H=0;
+function playWeaponSound(type){
+
+ensureAudio();
+
+if(!audioCtx)
+return;
+
+const now=audioCtx.currentTime;
+
+const master=audioCtx.createGain();
+master.gain.value=1.0;
+master.connect(audioCtx.destination);
+
+const osc=audioCtx.createOscillator();
+const osc2=audioCtx.createOscillator();
+const gain=audioCtx.createGain();
+
+osc.connect(gain);
+osc2.connect(gain);
+gain.connect(master);
+
+if(type==="pistol"){
+
+osc.type="square";
+
+osc.frequency.setValueAtTime(
+520,
+now
+);
+
+osc.frequency.exponentialRampToValueAtTime(
+210,
+now+0.09
+);
+
+osc2.type="triangle";
+
+osc2.frequency.setValueAtTime(
+360,
+now
+);
+
+osc2.frequency.exponentialRampToValueAtTime(
+150,
+now+0.09
+);
+
+gain.gain.setValueAtTime(
+0.0001,
+now
+);
+
+gain.gain.exponentialRampToValueAtTime(
+0.55,
+now+0.01
+);
+
+gain.gain.exponentialRampToValueAtTime(
+0.0001,
+now+0.12
+);
+
+}
+
+if(type==="smg"){
+
+osc.type="sawtooth";
+
+osc.frequency.setValueAtTime(
+430,
+now
+);
+
+osc.frequency.exponentialRampToValueAtTime(
+170,
+now+0.07
+);
+
+osc2.type="triangle";
+
+osc2.frequency.setValueAtTime(
+300,
+now
+);
+
+osc2.frequency.exponentialRampToValueAtTime(
+130,
+now+0.07
+);
+
+gain.gain.setValueAtTime(
+0.0001,
+now
+);
+
+gain.gain.exponentialRampToValueAtTime(
+0.38,
+now+0.006
+);
+
+gain.gain.exponentialRampToValueAtTime(
+0.0001,
+now+0.09
+);
+
+}
+
+if(type==="rifle"){
+
+osc.type="sawtooth";
+
+osc.frequency.setValueAtTime(
+330,
+now
+);
+
+osc.frequency.exponentialRampToValueAtTime(
+80,
+now+0.2
+);
+
+osc2.type="square";
+
+osc2.frequency.setValueAtTime(
+240,
+now
+);
+
+osc2.frequency.exponentialRampToValueAtTime(
+65,
+now+0.2
+);
+
+gain.gain.setValueAtTime(
+0.0001,
+now
+);
+
+gain.gain.exponentialRampToValueAtTime(
+0.72,
+now+0.02
+);
+
+gain.gain.exponentialRampToValueAtTime(
+0.0001,
+now+0.3
+);
+
+}
+
+osc.start(now);
+osc2.start(now);
+
+osc.stop(now+0.25);
+osc2.stop(now+0.25);
+
+}
+
+
+/* ================= BOUM TÊTE DE MORT 💀💥 ================= */
+
+function playSkullBoom(){
+
+ensureAudio();
+
+if(!audioCtx)
+return;
+
+const now=audioCtx.currentTime;
+
+const master=audioCtx.createGain();
+
+/* 🔊 BOUM BEAUCOUP PLUS FORT */
+master.gain.value=2.8;
+
+master.connect(
+audioCtx.destination
+);
+
+
+/* ================= GROS BOUM GRAVE ================= */
+
+const osc=audioCtx.createOscillator();
+
+const gain=audioCtx.createGain();
+
+osc.type="sine";
+
+osc.frequency.setValueAtTime(
+110,
+now
+);
+
+osc.frequency.exponentialRampToValueAtTime(
+20,
+now+0.7
+);
+
+gain.gain.setValueAtTime(
+0.0001,
+now
+);
+
+gain.gain.exponentialRampToValueAtTime(
+2.5,
+now+0.012
+);
+
+gain.gain.exponentialRampToValueAtTime(
+0.0001,
+now+0.8
+);
+
+osc.connect(gain);
+gain.connect(master);
+
+osc.start(now);
+
+osc.stop(
+now+0.85
+);
+
+
+/* ================= IMPACT SEC ================= */
+
+const osc2=audioCtx.createOscillator();
+
+const gain2=audioCtx.createGain();
+
+osc2.type="sawtooth";
+
+osc2.frequency.setValueAtTime(
+210,
+now
+);
+
+osc2.frequency.exponentialRampToValueAtTime(
+30,
+now+0.3
+);
+
+gain2.gain.setValueAtTime(
+0.0001,
+now
+);
+
+gain2.gain.exponentialRampToValueAtTime(
+1.8,
+now+0.008
+);
+
+gain2.gain.exponentialRampToValueAtTime(
+0.0001,
+now+0.35
+);
+
+osc2.connect(gain2);
+gain2.connect(master);
+
+osc2.start(now);
+
+osc2.stop(
+now+0.4
+);
+
+
+/* ================= COUP DE PRESSION ================= */
+
+const osc3=audioCtx.createOscillator();
+
+const gain3=audioCtx.createGain();
+
+osc3.type="square";
+
+osc3.frequency.setValueAtTime(
+75,
+now
+);
+
+osc3.frequency.exponentialRampToValueAtTime(
+25,
+now+0.25
+);
+
+gain3.gain.setValueAtTime(
+0.0001,
+now
+);
+
+gain3.gain.exponentialRampToValueAtTime(
+1.1,
+now+0.01
+);
+
+gain3.gain.exponentialRampToValueAtTime(
+0.0001,
+now+0.3
+);
+
+osc3.connect(gain3);
+gain3.connect(master);
+
+osc3.start(now);
+
+osc3.stop(
+now+0.35
+);
+
+}
+
+
+/* ================= SON X2 🎮💰 ================= */
+
+function playX2Sound(){
+
+ensureAudio();
+
+if(!audioCtx)
+return;
+
+const now=audioCtx.currentTime;
+
+const master=audioCtx.createGain();
+
+master.gain.value=1.5;
+
+master.connect(
+audioCtx.destination
+);
+
+
+function note(
+freq,
+start,
+duration,
+volume
+){
+
+const osc=
+audioCtx.createOscillator();
+
+const gain=
+audioCtx.createGain();
+
+osc.type="square";
+
+osc.frequency.setValueAtTime(
+freq,
+start
+);
+
+gain.gain.setValueAtTime(
+0.0001,
+start
+);
+
+gain.gain.exponentialRampToValueAtTime(
+volume,
+start+0.008
+);
+
+gain.gain.exponentialRampToValueAtTime(
+0.0001,
+start+duration
+);
+
+osc.connect(gain);
+gain.connect(master);
+
+osc.start(start);
+
+osc.stop(
+start+duration+0.02
+);
+
+}
+
+
+/* petit son arcade style bonus / 100 points */
+
+note(
+880,
+now,
+0.09,
+0.7
+);
+
+note(
+1175,
+now+0.08,
+0.09,
+0.8
+);
+
+note(
+1568,
+now+0.16,
+0.16,
+0.9
+);
+
+}
+
+
+function playMusic(){
+
+if(!music)
+return;
+
+music.load();
+music.currentTime=0;
+
+const tryPlay=()=>{
+music.play().catch(()=>{});
+};
+
+tryPlay();
+
+setTimeout(()=>{
+tryPlay();
+},200);
+
+}
+
+
+function stopMusic(){
+
+if(!music)
+return;
+
+music.pause();
+music.currentTime=0;
+
+}
+
+
+let W=0,H=0;
 
 function resize(){
 
-  W=
-  canvas.width=
-  window.innerWidth;
-
-  H=
-  canvas.height=
-  window.innerHeight;
+W=canvas.width=innerWidth;
+H=canvas.height=innerHeight;
 
 }
 
 window.addEventListener(
-  "resize",
-  resize
+"resize",
+resize
 );
 
 resize();
 
 
-/* =====================================================
-   MONDE
-===================================================== */
+const TILE_SIZE=3000;
 
-const WORLD_WIDTH=3000;
-const WORLD_HEIGHT=3000;
+const WORLD_WIDTH=TILE_SIZE*2;
+const WORLD_HEIGHT=TILE_SIZE*2;
 
-
-/* =====================================================
-   CAMÉRA
-===================================================== */
-
-const CAMERA_ZOOM=.58;
+const CAMERA_ZOOM=.45;
 
 let camera={
-  x:0,
-  y:0
+x:0,
+y:0
 };
-
-
-/* =====================================================
-   VARIABLES
-===================================================== */
 
 let running=false;
 
 let upgradeOpen=false;
+let weaponOpen=false;
+let turretOpen=false;
+let placementMode=false;
 
 let score=0;
-
 let kills=0;
-
 let wave=1;
-
 let coins=0;
 
+let powerUps=[];
+
+let scoreMultiplier=1;
+
 let spawnTimer=0;
-
 let shootTimer=0;
-
 let lastTime=0;
 
 let enemies=[];
-
 let bullets=[];
-
 let particles=[];
+let turrets=[];
+let turretBullets=[];
 
 let keys={};
 
 let joystickX=0;
-
 let joystickY=0;
 
 let player;
 
 
-/* =====================================================
-   AMÉLIORATIONS
-===================================================== */
-
 let upgrades={
-  health:0,
-  fire:0,
-  damage:0,
-  speed:0
+health:0,
+fire:0,
+damage:0,
+speed:0
 };
 
 
-function loadUpgrades(){
+try{
 
-  try{
+const s=
+localStorage.getItem(
+"monsterSurvivalUpgrades"
+);
 
-    const saved=
-    localStorage.getItem(
-      "monsterSurvivalUpgrades"
-    );
+if(s)
+upgrades={
+...upgrades,
+...JSON.parse(s)
+};
 
-    if(saved){
+}catch(e){}
 
-      upgrades=
-      JSON.parse(saved);
-
-    }
-
-  }catch(e){
-
-    upgrades={
-      health:0,
-      fire:0,
-      damage:0,
-      speed:0
-    };
-
-  }
-
-}
 
 function saveUpgrades(){
 
-  localStorage.setItem(
-    "monsterSurvivalUpgrades",
-    JSON.stringify(upgrades)
-  );
+try{
 
-}
+localStorage.setItem(
+"monsterSurvivalUpgrades",
+JSON.stringify(upgrades)
+);
 
-loadUpgrades();
-
-
-/* =====================================================
-   PRIX
-===================================================== */
-
-function getHealthCost(){
-
-  return 50+
-  upgrades.health*50;
-
-}
-
-function getFireCost(){
-
-  return 75+
-  upgrades.fire*75;
-
-}
-
-function getDamageCost(){
-
-  return 100+
-  upgrades.damage*100;
-
-}
-
-function getSpeedCost(){
-
-  return 60+
-  upgrades.speed*60;
+}catch(e){}
 
 }
 
 
-/* =====================================================
-   JOUEUR
-===================================================== */
+const costs={
+
+health:()=>50+upgrades.health*50,
+
+fire:()=>75+upgrades.fire*75,
+
+damage:()=>100+upgrades.damage*100,
+
+speed:()=>60+upgrades.speed*60
+
+};
+
+
+const weaponStats={
+
+pistol:{
+name:"Handgun",
+damage:25,
+fireRate:.35,
+bulletSpeed:700,
+price:0
+},
+
+smg:{
+name:"Mitraillette",
+damage:12,
+fireRate:.12,
+bulletSpeed:760,
+price:100
+},
+
+rifle:{
+name:"Shotgun",
+damage:45,
+fireRate:.65,
+bulletSpeed:950,
+price:250
+}
+
+};
+
+
+let weaponsOwned={
+pistol:true,
+smg:false,
+rifle:false
+};
+
+let currentWeapon="pistol";
+
+
+try{
+
+const savedWeapons=
+localStorage.getItem(
+"monsterSurvivalWeapons"
+);
+
+if(savedWeapons){
+
+const data=JSON.parse(savedWeapons);
+
+if(data.owned){
+
+weaponsOwned={
+...weaponsOwned,
+...data.owned
+};
+
+}
+
+if(
+data.current &&
+weaponsOwned[data.current]
+){
+
+currentWeapon=data.current;
+
+}
+
+}
+
+}catch(e){}
+
+
+function saveWeapons(){
+
+try{
+
+localStorage.setItem(
+"monsterSurvivalWeapons",
+JSON.stringify({
+owned:weaponsOwned,
+current:currentWeapon
+})
+);
+
+}catch(e){}
+
+}
+
+
+const turretStats={
+
+machine:{
+name:"Tourelle mitrailleuse",
+price:150,
+damage:8,
+fireRate:.18,
+bulletSpeed:850,
+range:450,
+radius:24
+},
+
+cannon:{
+name:"Tourelle canon",
+price:250,
+damage:35,
+fireRate:.65,
+bulletSpeed:750,
+range:500,
+radius:27
+},
+
+heavy:{
+name:"Tourelle lourde",
+price:400,
+damage:70,
+fireRate:1.15,
+bulletSpeed:1000,
+range:650,
+radius:30
+}
+
+};
+
+
+let placingTurretType=null;
+
+
+/* ================= COLLISIONS ================= */
+
+const BUILDINGS=[
+
+[120,130,470,390],
+[2200,120,650,410],
+[130,2150,520,420],
+[2180,2130,650,430],
+[690,690,390,300],
+[1920,700,390,300],
+[680,1960,400,310],
+[1920,1940,400,330]
+
+];
+
+
+const TILE_OFFSETS=[
+
+[0,0],
+[TILE_SIZE,0],
+[0,TILE_SIZE],
+[TILE_SIZE,TILE_SIZE]
+
+];
+
+
+function circleHitsBuilding(x,y,r){
+
+for(const [ox,oy] of TILE_OFFSETS){
+
+for(const b of BUILDINGS){
+
+const bx=ox+b[0];
+const by=oy+b[1];
+
+const bw=b[2];
+const bh=b[3];
+
+const closestX=
+Math.max(
+bx,
+Math.min(x,bx+bw)
+);
+
+const closestY=
+Math.max(
+by,
+Math.min(y,by+bh)
+);
+
+const dx=x-closestX;
+const dy=y-closestY;
+
+if(dx*dx+dy*dy<r*r)
+return true;
+
+}
+
+}
+
+return false;
+
+}
+
+
+function moveCircleWithBuildings(obj,nx,ny){
+
+if(!circleHitsBuilding(nx,ny,obj.radius)){
+
+obj.x=nx;
+obj.y=ny;
+
+return;
+
+}
+
+if(!circleHitsBuilding(nx,obj.y,obj.radius))
+obj.x=nx;
+
+if(!circleHitsBuilding(obj.x,ny,obj.radius))
+obj.y=ny;
+
+}
+
+
+/* ================= PLAYER ================= */
 
 function createPlayer(){
 
-  const maxHealth=
-    100+
-    upgrades.health*25;
+const m=100+upgrades.health*25;
 
-  return{
+const weapon=
+weaponStats[currentWeapon];
 
-    x:WORLD_WIDTH/2,
+return{
 
-    y:WORLD_HEIGHT/2,
+x:TILE_SIZE,
+y:TILE_SIZE,
 
-    radius:22,
+radius:22,
 
-    speed:
-      300+
-      upgrades.speed*25,
+speed:300+upgrades.speed*25,
 
-    health:maxHealth,
+health:m,
+maxHealth:m,
 
-    maxHealth:maxHealth,
+damage:
+weapon.damage+
+upgrades.damage*10,
 
-    damage:
-      25+
-      upgrades.damage*10,
+fireRate:
+Math.max(
+.08,
+weapon.fireRate-
+upgrades.fire*.035
+),
 
-    fireRate:
-      Math.max(
-        .08,
-        .35-
-        upgrades.fire*.035
-      ),
+bulletSpeed:weapon.bulletSpeed,
 
-    bulletSpeed:700,
+invincible:0
 
-    invincible:0
-
-  };
+};
 
 }
 
 
-/* =====================================================
-   MONSTRES
-===================================================== */
+/* ================= ENNEMIS ================= */
 
 function createEnemy(){
 
-  const angle=
-    Math.random()*
-    Math.PI*2;
+const a=Math.random()*Math.PI*2;
 
-  const distance=
-    650+
-    Math.random()*500;
+const d=650+Math.random()*500;
 
-  let x=
-    player.x+
-    Math.cos(angle)*
-    distance;
+let x=Math.max(
+40,
+Math.min(
+WORLD_WIDTH-40,
+player.x+Math.cos(a)*d
+)
+);
 
-  let y=
-    player.y+
-    Math.sin(angle)*
-    distance;
+let y=Math.max(
+40,
+Math.min(
+WORLD_HEIGHT-40,
+player.y+Math.sin(a)*d
+)
+);
 
-  x=Math.max(
-    40,
-    Math.min(
-      WORLD_WIDTH-40,
-      x
-    )
-  );
+if(Math.random()<.75){
 
-  y=Math.max(
-    40,
-    Math.min(
-      WORLD_HEIGHT-40,
-      y
-    )
-  );
+let h=50+wave*5;
 
-  const type=
-    Math.random();
+return{
 
-  if(type<.75){
+x,y,
 
-    return{
+radius:18,
 
-      x:x,
-      y:y,
+speed:65+wave*3,
 
-      radius:18,
+health:h,
+maxHealth:h,
 
-      speed:
-        65+
-        wave*3,
+damage:12,
 
-      health:
-        50+
-        wave*5,
+color:"#ef4444"
 
-      maxHealth:
-        50+
-        wave*5,
+};
 
-      damage:12,
+}
 
-      color:"#ef4444"
+let h=120+wave*10;
 
-    };
+return{
 
-  }
+x,y,
 
-  return{
+radius:26,
 
-    x:x,
-    y:y,
+speed:42+wave*2,
 
-    radius:26,
+health:h,maxHealth:h,
 
-    speed:
-      42+
-      wave*2,
+damage:20,
 
-    health:
-      120+
-      wave*10,
+color:"#a855f7"
 
-    maxHealth:
-      120+
-      wave*10,
-
-    damage:20,
-
-    color:"#a855f7"
-
-  };
+};
 
 }
 
 
-/* =====================================================
-   CLAVIER
-===================================================== */
+/* ================= CLAVIER ================= */
 
 window.addEventListener(
-  "keydown",
-  e=>{
-
-    keys[
-      e.key.toLowerCase()
-    ]=true;
-
-  }
+"keydown",
+e=>{
+keys[e.key.toLowerCase()]=true;
+}
 );
 
 window.addEventListener(
-  "keyup",
-  e=>{
-
-    keys[
-      e.key.toLowerCase()
-    ]=false;
-
-  }
+"keyup",
+e=>{
+keys[e.key.toLowerCase()]=false;
+}
 );
 
 
-/* =====================================================
-   JOYSTICK
-===================================================== */
+/* ================= JOYSTICK ================= */
 
 let joystickActive=false;
+let joystickPointerId=null;
 
-function updateJoystick(
-  clientX,
-  clientY
-){
 
-  const rect=
-    joystick.getBoundingClientRect();
+function showJoystick(x,y){
 
-  const centerX=
-    rect.left+
-    rect.width/2;
-
-  const centerY=
-    rect.top+
-    rect.height/2;
-
-  let dx=
-    clientX-centerX;
-
-  let dy=
-    clientY-centerY;
-
-  const max=42;
-
-  const distance=
-    Math.sqrt(
-      dx*dx+
-      dy*dy
-    );
-
-  if(distance>max){
-
-    dx=
-      dx/distance*
-      max;
-
-    dy=
-      dy/distance*
-      max;
-
-  }
-
-  joystickX=
-    dx/max;
-
-  joystickY=
-    dy/max;
-
-  stick.style.transform=
-    `translate(
-      calc(-50% + ${dx}px),
-      calc(-50% + ${dy}px)
-    )`;
+$("joystick").style.left=x+"px";
+$("joystick").style.top=y+"px";
+$("joystick").style.display="block";
 
 }
+
+
+function updateJoystick(x,y){
+
+const r=
+$("joystick").getBoundingClientRect();
+
+const cx=
+r.left+r.width/2;
+
+const cy=
+r.top+r.height/2;
+
+let dx=x-cx;
+let dy=y-cy;
+
+let d=Math.hypot(dx,dy);
+
+let max=42;
+
+if(d>max){
+
+dx=dx/d*max;
+dy=dy/d*max;
+
+}
+
+joystickX=dx/max;
+joystickY=dy/max;
+
+$("stick").style.transform=
+`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px))`;
+
+}
+
 
 function resetJoystick(){
 
-  joystickActive=false;
+joystickActive=false;
+joystickPointerId=null;
 
-  joystickX=0;
-  joystickY=0;
+joystickX=0;
+joystickY=0;
 
-  stick.style.transform=
-    "translate(-50%,-50%)";
+$("joystick").style.display="none";
+
+$("stick").style.transform=
+"translate(-50%,-50%)";
 
 }
 
-joystick.addEventListener(
-  "pointerdown",
-  e=>{
 
-    if(upgradeOpen)return;
+function isInterfaceElement(target){
 
-    joystickActive=true;
+if(
+target.closest("button")||
+target.closest("#upgradeMenu")||
+target.closest("#weaponMenu")||
+target.closest("#turretMenu")||
+target.closest("#startScreen")||
+target.closest("#gameOver")
+)
+return true;
 
-    joystick.setPointerCapture(
-      e.pointerId
-    );
+return false;
 
-    updateJoystick(
-      e.clientX,
-      e.clientY
-    );
+}
 
-  }
+
+$("game").addEventListener(
+"pointerdown",
+e=>{
+
+if(
+!running||
+upgradeOpen||
+weaponOpen||
+turretOpen||
+placementMode
+)
+return;
+
+if(isInterfaceElement(e.target))
+return;
+
+if(joystickActive)
+return;
+
+joystickActive=true;
+
+joystickPointerId=e.pointerId;
+
+showJoystick(
+e.clientX,
+e.clientY
 );
 
-joystick.addEventListener(
-  "pointermove",
-  e=>{
+try{
 
-    if(
-      joystickActive &&
-      !upgradeOpen
-    ){
-
-      updateJoystick(
-        e.clientX,
-        e.clientY
-      );
-
-    }
-
-  }
+$("game").setPointerCapture(
+e.pointerId
 );
 
-joystick.addEventListener(
-  "pointerup",
-  resetJoystick
+}catch(err){}
+
+updateJoystick(
+e.clientX,
+e.clientY
 );
 
-joystick.addEventListener(
-  "pointercancel",
-  resetJoystick
+}
 );
 
 
-/* =====================================================
-   ENNEMI LE PLUS PROCHE
-===================================================== */
+$("game").addEventListener(
+"pointermove",
+e=>{
+
+if(
+!joystickActive||
+e.pointerId!==joystickPointerId
+)
+return;
+
+if(
+upgradeOpen||
+weaponOpen||
+turretOpen||
+placementMode
+){
+
+resetJoystick();
+return;
+
+}
+
+updateJoystick(
+e.clientX,
+e.clientY
+);
+
+}
+);
+
+
+$("game").addEventListener(
+"pointerup",
+e=>{
+
+if(e.pointerId===joystickPointerId)
+resetJoystick();
+
+}
+);
+
+
+$("game").addEventListener(
+"pointercancel",
+e=>{
+
+if(e.pointerId===joystickPointerId)
+resetJoystick();
+
+}
+);
+
+
+/* ================= CIBLES ================= */
 
 function nearestEnemy(){
 
-  let closest=null;
+let c=null;
+let cd=Infinity;
 
-  let closestDistance=
-    Infinity;
+for(const e of enemies){
 
-  for(
-    const enemy of enemies
-  ){
+let d=
+(e.x-player.x)**2+
+(e.y-player.y)**2;
 
-    const dx=
-      enemy.x-player.x;
+if(d<cd){
 
-    const dy=
-      enemy.y-player.y;
+cd=d;
+c=e;
 
-    const distance=
-      dx*dx+
-      dy*dy;
+}
 
-    if(
-      distance<
-      closestDistance
-    ){
+}
 
-      closestDistance=
-        distance;
-
-      closest=
-        enemy;
-
-    }
-
-  }
-
-  return closest;
+return c;
 
 }
 
 
-/* =====================================================
-   TIR
-===================================================== */
+function turretTarget(turret){
+
+let closest=null;
+
+let closestDistance=
+turret.range*turret.range;
+
+for(const enemy of enemies){
+
+let dx=enemy.x-turret.x;
+let dy=enemy.y-turret.y;
+
+let distance=
+dx*dx+dy*dy;
+
+if(distance<closestDistance){
+
+closestDistance=distance;
+closest=enemy;
+
+}
+
+}
+
+return closest;
+
+}
+
+
+/* ================= TIR ================= */
 
 function shoot(){
 
-  const target=
-    nearestEnemy();
+const t=nearestEnemy();
 
-  if(!target)return;
+if(!t)
+return;
 
-  const dx=
-    target.x-player.x;
+const dx=t.x-player.x;
+const dy=t.y-player.y;
 
-  const dy=
-    target.y-player.y;
+const baseAngle=
+Math.atan2(dy,dx);
 
-  const distance=
-    Math.sqrt(
-      dx*dx+
-      dy*dy
-    );
+const d=Math.hypot(dx,dy)||1;
 
-  if(distance===0)return;
+playWeaponSound(currentWeapon);
 
-  bullets.push({
 
-    x:player.x,
-    y:player.y,
+/* SHOTGUN */
 
-    vx:
-      dx/distance*
-      player.bulletSpeed,
+if(currentWeapon==="rifle"){
 
-    vy:
-      dy/distance*
-      player.bulletSpeed,
+const pelletCount=7;
 
-    radius:5,
+const spread=.65;
 
-    damage:
-      player.damage
+for(let i=0;i<pelletCount;i++){
 
-  });
+const ratio=
+i/(pelletCount-1);
+
+const angle=
+baseAngle-
+spread/2+
+ratio*spread;
+
+bullets.push({
+
+x:player.x,
+y:player.y,
+
+vx:
+Math.cos(angle)*
+player.bulletSpeed,
+
+vy:
+Math.sin(angle)*
+player.bulletSpeed,
+
+radius:5,
+
+damage:player.damage
+
+});
+
+}
+
+return;
 
 }
 
 
-/* =====================================================
-   PARTICULES
-===================================================== */
+/* HANDGUN / MITRAILLETTE */
+
+bullets.push({
+
+x:player.x,
+y:player.y,
+
+vx:
+dx/d*
+player.bulletSpeed,
+
+vy:
+dy/d*
+player.bulletSpeed,
+
+radius:5,
+
+damage:player.damage
+
+});
+
+}
+
+
+/* ================= TOURELLES ================= */
+
+function turretShoot(turret){
+
+const target=
+turretTarget(turret);
+
+if(!target)
+return;
+
+const dx=target.x-turret.x;
+const dy=target.y-turret.y;
+
+const d=Math.hypot(dx,dy)||1;
+
+turretBullets.push({
+
+x:turret.x,
+y:turret.y,
+
+vx:
+dx/d*
+turret.bulletSpeed,
+
+vy:
+dy/d*
+turret.bulletSpeed,
+
+radius:
+turret.type==="heavy"?7:5,
+
+damage:turret.damage,
+
+type:turret.type
+
+});
+
+}
+
+
+/* ================= EXPLOSION ================= */
 
 function explosion(x,y){
 
-  for(
-    let i=0;
-    i<10;
-    i++
-  ){
+for(let i=0;i<10;i++){
 
-    const angle=
-      Math.random()*
-      Math.PI*2;
+let a=Math.random()*Math.PI*2;
+let s=40+Math.random()*120;
 
-    const speed=
-      40+
-      Math.random()*120;
+particles.push({
 
-    particles.push({
+x,y,
 
-      x:x,
-      y:y,
+vx:Math.cos(a)*s,
+vy:Math.sin(a)*s,
 
-      vx:
-        Math.cos(angle)*
-        speed,
+life:.5
 
-      vy:
-        Math.sin(angle)*
-        speed,
+});
 
-      life:.5
-
-    });
-
-  }
+}
 
 }
 
 
-/* =====================================================
-   UPDATE
-===================================================== */
+/* ================= POWER-UPS ================= */
+
+function spawnPowerUp(x,y){
+
+powerUps.push({
+
+x:x,
+y:y,
+
+type:
+Math.random()<0.5
+?"skull"
+:"x2",
+
+radius:30,
+pulse:0
+
+});
+
+}
+
+
+function collectPowerUp(powerUp){
+
+if(powerUp.type==="skull"){
+
+/* 💀💥 GROS BOUM */
+
+playSkullBoom();
+
+for(const e of enemies){
+
+explosion(
+e.x,
+e.y
+);
+
+}
+
+enemies=[];
+
+}
+
+
+if(powerUp.type==="x2"){
+
+/* 🎮💰 SON ARCADE BONUS */
+
+playX2Sound();
+
+scoreMultiplier=2;
+
+}
+
+}
+
+
+/* ================= UPDATE ================= */
 
 function update(dt){
 
-  if(
-    !running ||
-    upgradeOpen
-  ){
+if(
+!running||
+upgradeOpen||
+weaponOpen||
+turretOpen||
+placementMode
+)
+return;
 
-    return;
 
-  }
+let mx=joystickX;
+let my=joystickY;
 
 
-  let moveX=
-    joystickX;
+if(keys.arrowleft||keys.a)
+mx--;
 
-  let moveY=
-    joystickY;
+if(keys.arrowright||keys.d)
+mx++;
 
+if(keys.arrowup||keys.w)
+my--;
 
-  if(
-    keys["arrowleft"]||
-    keys["a"]
-  ){
+if(keys.arrowdown||keys.s)
+my++;
 
-    moveX-=1;
 
-  }
+let l=Math.hypot(mx,my);
 
-  if(
-    keys["arrowright"]||
-    keys["d"]
-  ){
+if(l>1){
 
-    moveX+=1;
-
-  }
-
-  if(
-    keys["arrowup"]||
-    keys["w"]
-  ){
-
-    moveY-=1;
-
-  }
-
-  if(
-    keys["arrowdown"]||
-    keys["s"]
-  ){
-
-    moveY+=1;
-
-  }
-
-
-  const length=
-    Math.sqrt(
-      moveX*moveX+
-      moveY*moveY
-    );
-
-
-  if(length>1){
-
-    moveX/=length;
-    moveY/=length;
-
-  }
-
-
-  player.x+=
-    moveX*
-    player.speed*
-    dt;
-
-  player.y+=
-    moveY*
-    player.speed*
-    dt;
-
-
-  player.x=
-    Math.max(
-      player.radius,
-      Math.min(
-        WORLD_WIDTH-
-        player.radius,
-        player.x
-      )
-    );
-
-
-  player.y=
-    Math.max(
-      player.radius,
-      Math.min(
-        WORLD_HEIGHT-
-        player.radius,
-        player.y
-      )
-    );
-
-
-  /* CAMÉRA */
-
-  camera.x=
-    player.x-
-    (W/2)/
-    CAMERA_ZOOM;
-
-  camera.y=
-    player.y-
-    (H/2)/
-    CAMERA_ZOOM;
-
-
-  const visibleWorldWidth=
-    W/CAMERA_ZOOM;
-
-  const visibleWorldHeight=
-    H/CAMERA_ZOOM;
-
-
-  camera.x=
-    Math.max(
-      0,
-      Math.min(
-        WORLD_WIDTH-
-        visibleWorldWidth,
-        camera.x
-      )
-    );
-
-  camera.y=
-    Math.max(
-      0,
-      Math.min(
-        WORLD_HEIGHT-
-        visibleWorldHeight,
-        camera.y
-      )
-    );
-
-
-  if(player.invincible>0){
-
-    player.invincible-=dt;
-
-  }
-
-
-  /* SPAWN */
-
-  spawnTimer-=dt;
-
-  const spawnDelay=
-    Math.max(
-      .15,
-      .8-wave*.035
-    );
-
-
-  if(spawnTimer<=0){
-
-    spawnTimer=
-      spawnDelay;
-
-    const amount=
-      wave>=8 &&
-      Math.random()<.25
-      ?2
-      :1;
-
-
-    for(
-      let i=0;
-      i<amount;
-      i++
-    ){
-
-      enemies.push(
-        createEnemy()
-      );
-
-    }
-
-  }
-
-
-  /* TIR */
-
-  shootTimer-=dt;
-
-
-  if(shootTimer<=0){
-
-    shoot();
-
-    shootTimer=
-      player.fireRate;
-
-  }
-
-
-  /* MONSTRES */
-
-  for(
-    let i=enemies.length-1;
-    i>=0;
-    i--
-  ){
-
-    const enemy=
-      enemies[i];
-
-    const dx=
-      player.x-
-      enemy.x;
-
-    const dy=
-      player.y-
-      enemy.y;
-
-    const distance=
-      Math.sqrt(
-        dx*dx+
-        dy*dy
-      );
-
-
-    if(distance>0){
-
-      enemy.x+=
-        dx/distance*
-        enemy.speed*
-        dt;
-
-      enemy.y+=
-        dy/distance*
-        enemy.speed*
-        dt;
-
-    }
-
-
-    if(
-      distance<
-      enemy.radius+
-      player.radius
-    ){
-
-      if(
-        player.invincible<=0
-      ){
-
-        player.health-=
-          enemy.damage;
-
-        player.invincible=
-          .55;
-
-        explosion(
-          player.x,
-          player.y
-        );
-
-
-        if(
-          player.health<=0
-        ){
-
-          endGame();
-
-          return;
-
-        }
-
-      }
-
-    }
-
-  }
-
-
-  /* BALLES */
-
-  for(
-    let i=bullets.length-1;
-    i>=0;
-    i--
-  ){
-
-    const bullet=
-      bullets[i];
-
-    bullet.x+=
-      bullet.vx*dt;
-
-    bullet.y+=
-      bullet.vy*dt;
-
-    let remove=false;
-
-
-    for(
-      let j=enemies.length-1;
-      j>=0&&!remove;
-      j--
-    ){
-
-      const enemy=
-        enemies[j];
-
-      const dx=
-        bullet.x-
-        enemy.x;
-
-      const dy=
-        bullet.y-
-        enemy.y;
-
-      const distance=
-        Math.sqrt(
-          dx*dx+
-          dy*dy
-        );
-
-
-      if(
-        distance<
-        bullet.radius+
-        enemy.radius
-      ){
-
-        enemy.health-=
-          bullet.damage;
-
-        remove=true;
-
-
-        if(
-          enemy.health<=0
-        ){
-
-          score+=10;
-
-          kills++;
-
-          coins+=10;
-
-          explosion(
-            enemy.x,
-            enemy.y
-          );
-
-          enemies.splice(
-            j,
-            1
-          );
-
-        }
-
-      }
-
-    }
-
-
-    if(
-      bullet.x<-100||
-      bullet.x>
-      WORLD_WIDTH+100||
-      bullet.y<-100||
-      bullet.y>
-      WORLD_HEIGHT+100
-    ){
-
-      remove=true;
-
-    }
-
-
-    if(remove){
-
-      bullets.splice(
-        i,
-        1
-      );
-
-    }
-
-  }
-
-
-  /* PARTICULES */
-
-  for(
-    let i=particles.length-1;
-    i>=0;
-    i--
-  ){
-
-    const p=
-      particles[i];
-
-    p.x+=
-      p.vx*dt;
-
-    p.y+=
-      p.vy*dt;
-
-    p.life-=dt;
-
-
-    if(p.life<=0){
-
-      particles.splice(
-        i,
-        1
-      );
-
-    }
-
-  }
-
-
-  /* VAGUE */
-
-  const newWave=
-    Math.floor(
-      kills/15
-    )+1;
-
-
-  if(newWave!==wave){
-
-    wave=newWave;
-
-  }
-
-
-  /* UI */
-
-  scoreText.textContent=
-    score;
-
-  killsText.textContent=
-    kills;
-
-  waveText.textContent=
-    wave;
-
-
-  const health=
-    Math.max(
-      0,
-      player.health/
-      player.maxHealth*
-      100
-    );
-
-
-  healthBar.style.width=
-    health+"%";
+mx/=l;
+my/=l;
 
 }
 
 
-/* =====================================================
-   DESSIN
-===================================================== */
-
-function draw(){
-
-  ctx.clearRect(
-    0,
-    0,
-    W,
-    H
-  );
-
-
-  ctx.save();
-
-
-  ctx.translate(
-    -camera.x*
-    CAMERA_ZOOM,
-
-    -camera.y*
-    CAMERA_ZOOM
-  );
-
-
-  ctx.scale(
-    CAMERA_ZOOM,
-    CAMERA_ZOOM
-  );
-
-
-  /* SOL */
-
-  ctx.fillStyle=
-    "#243b2a";
-
-  ctx.fillRect(
-    0,
-    0,
-    WORLD_WIDTH,
-    WORLD_HEIGHT
-  );
-
-
-  /* ZONES */
-
-  ctx.fillStyle=
-    "#294b31";
-
-
-  for(
-    let x=0;
-    x<WORLD_WIDTH;
-    x+=400
-  ){
-
-    for(
-      let y=0;
-      y<WORLD_HEIGHT;
-      y+=400
-    ){
-
-      ctx.fillRect(
-        x+20,
-        y+20,
-        340,
-        340
-      );
-
-    }
-
-  }
-
-
-  /* GRILLE */
-
-  ctx.strokeStyle=
-    "#ffffff08";
-
-  ctx.lineWidth=2;
-
-
-  for(
-    let x=0;
-    x<=WORLD_WIDTH;
-    x+=100
-  ){
-
-    ctx.beginPath();
-
-    ctx.moveTo(
-      x,
-      0
-    );
-
-    ctx.lineTo(
-      x,
-      WORLD_HEIGHT
-    );
-
-    ctx.stroke();
-
-  }
-
-
-  for(
-    let y=0;
-    y<=WORLD_HEIGHT;
-    y+=100
-  ){
-
-    ctx.beginPath();
-
-    ctx.moveTo(
-      0,
-      y
-    );
-
-    ctx.lineTo(
-      WORLD_WIDTH,
-      y
-    );
-
-    ctx.stroke();
-
-  }
-
-
-  drawWorldDecorations();
-
-
-  /* PARTICULES */
-
-  for(
-    const p of particles
-  ){
-
-    ctx.globalAlpha=
-      Math.max(
-        0,
-        p.life*2
-      );
-
-    ctx.fillStyle=
-      "#fbbf24";
-
-    ctx.beginPath();
-
-    ctx.arc(
-      p.x,
-      p.y,
-      5,
-      0,
-      Math.PI*2
-    );
-
-    ctx.fill();
-
-  }
-
-  ctx.globalAlpha=1;
-
-
-  /* BALLES */
-
-  for(
-    const bullet of bullets
-  ){
-
-    ctx.fillStyle=
-      "#facc15";
-
-    ctx.shadowColor=
-      "#facc15";
-
-    ctx.shadowBlur=12;
-
-    ctx.beginPath();
-
-    ctx.arc(
-      bullet.x,
-      bullet.y,
-      bullet.radius,
-      0,
-      Math.PI*2
-    );
-
-    ctx.fill();
-
-  }
-
-  ctx.shadowBlur=0;
-
-
-  /* MONSTRES */
-
-  for(
-    const enemy of enemies
-  ){
-
-    ctx.fillStyle=
-      enemy.color;
-
-    ctx.beginPath();
-
-    ctx.arc(
-      enemy.x,
-      enemy.y,
-      enemy.radius,
-      0,
-      Math.PI*2
-    );
-
-    ctx.fill();
-
-
-    ctx.fillStyle=
-      "white";
-
-    ctx.beginPath();
-
-    ctx.arc(
-      enemy.x-
-      enemy.radius*.35,
-
-      enemy.y-
-      enemy.radius*.2,
-
-      enemy.radius*.22,
-
-      0,
-      Math.PI*2
-    );
-
-    ctx.arc(
-      enemy.x+
-      enemy.radius*.35,
-
-      enemy.y-
-      enemy.radius*.2,
-
-      enemy.radius*.22,
-
-      0,
-      Math.PI*2
-    );
-
-    ctx.fill();
-
-
-    ctx.fillStyle=
-      "#111";
-
-    ctx.beginPath();
-
-    ctx.arc(
-      enemy.x-
-      enemy.radius*.35,
-
-      enemy.y-
-      enemy.radius*.2,
-
-      enemy.radius*.09,
-
-      0,
-      Math.PI*2
-    );
-
-    ctx.arc(
-      enemy.x+
-      enemy.radius*.35,
-
-      enemy.y-
-      enemy.radius*.2,
-
-      enemy.radius*.09,
-
-      0,
-      Math.PI*2
-    );
-
-    ctx.fill();
-
-
-    if(
-      enemy.health<
-      enemy.maxHealth
-    ){
-
-      const barWidth=
-        enemy.radius*2.2;
-
-      ctx.fillStyle=
-        "#300";
-
-      ctx.fillRect(
-        enemy.x-
-        barWidth/2,
-
-        enemy.y-
-        enemy.radius-
-        10,
-
-        barWidth,
-        5
-      );
-
-      ctx.fillStyle=
-        "#4ade80";
-
-      ctx.fillRect(
-        enemy.x-
-        barWidth/2,
-
-        enemy.y-
-        enemy.radius-
-        10,
-
-        barWidth*
-        Math.max(
-          0,
-          enemy.health/
-          enemy.maxHealth
-        ),
-
-        5
-      );
-
-    }
-
-  }
-
-
-  /* JOUEUR */
-
-  if(player){
-
-    if(
-      player.invincible<=0||
-      Math.floor(
-        player.invincible*20
-      )%2===0
-    ){
-
-      ctx.fillStyle=
-        "#0006";
-
-      ctx.beginPath();
-
-      ctx.ellipse(
-        player.x,
-        player.y+20,
-        27,
-        10,
-        0,
-        0,
-        Math.PI*2
-      );
-
-      ctx.fill();
-
-
-      ctx.fillStyle=
-        "#3b82f6";
-
-      ctx.beginPath();
-
-      ctx.arc(
-        player.x,
-        player.y,
-        player.radius,
-        0,
-        Math.PI*2
-      );
-
-      ctx.fill();
-
-
-      ctx.fillStyle=
-        "#f1c27d";
-
-      ctx.beginPath();
-
-      ctx.arc(
-        player.x,
-        player.y-6,
-        11,
-        0,
-        Math.PI*2
-      );
-
-      ctx.fill();
-
-
-      const target=
-        nearestEnemy();
-
-
-      if(target){
-
-        const angle=
-          Math.atan2(
-            target.y-player.y,
-            target.x-player.x
-          );
-
-        ctx.save();
-
-        ctx.translate(
-          player.x,
-          player.y
-        );
-
-        ctx.rotate(angle);
-
-        ctx.fillStyle=
-          "#111827";
-
-        ctx.fillRect(
-          10,
-          -5,
-          32,
-          10
-        );
-
-        ctx.restore();
-
-      }
-
-    }
-
-  }
-
-
-  /* BORDURE */
-
-  ctx.strokeStyle=
-    "#111827";
-
-  ctx.lineWidth=30;
-
-  ctx.strokeRect(
-    0,
-    0,
-    WORLD_WIDTH,
-    WORLD_HEIGHT
-  );
-
-
-  ctx.restore();
+const nextPlayerX=
+Math.max(
+player.radius,
+Math.min(
+WORLD_WIDTH-player.radius,
+player.x+
+mx*player.speed*dt
+)
+);
+
+
+const nextPlayerY=
+Math.max(
+player.radius,
+Math.min(
+WORLD_HEIGHT-player.radius,
+player.y+
+my*player.speed*dt
+)
+);
+
+
+moveCircleWithBuildings(
+player,
+nextPlayerX,
+nextPlayerY
+);
+
+
+const viewW=W/CAMERA_ZOOM;
+const viewH=H/CAMERA_ZOOM;
+
+
+const maxCameraX=
+Math.max(
+0,
+WORLD_WIDTH-viewW
+);
+
+const maxCameraY=
+Math.max(
+0,
+WORLD_HEIGHT-viewH
+);
+
+
+camera.x=
+Math.max(
+0,
+Math.min(
+maxCameraX,
+player.x-viewW/2
+)
+);
+
+
+camera.y=
+Math.max(
+0,
+Math.min(
+maxCameraY,
+player.y-viewH/2
+)
+);
+
+
+if(player.invincible>0)
+player.invincible-=dt;
+
+
+spawnTimer-=dt;
+
+
+if(spawnTimer<=0){
+
+spawnTimer=
+Math.max(
+.15,
+.8-wave*.035
+);
+
+let n=
+wave>=8&&
+Math.random()<.25
+?2:1;
+
+for(let i=0;i<n;i++)
+enemies.push(
+createEnemy()
+);
 
 }
 
 
-/* =====================================================
-   DÉCOR
-===================================================== */
+shootTimer-=dt;
+
+
+if(shootTimer<=0){
+
+shoot();
+
+shootTimer=
+player.fireRate;
+
+}
+
+
+for(const turret of turrets){
+
+turret.fireTimer-=dt;
+
+if(turret.fireTimer<=0){
+
+turretShoot(turret);
+
+turret.fireTimer=
+turret.fireRate;
+
+}
+
+}
+
+
+/* ENNEMIS */
+
+for(let i=enemies.length-1;i>=0;i--){
+
+let e=enemies[i];
+
+let dx=player.x-e.x;
+let dy=player.y-e.y;
+
+let d=Math.hypot(dx,dy);
+
+
+if(d>0){
+
+const nextEnemyX=
+e.x+
+dx/d*
+e.speed*
+dt;
+
+const nextEnemyY=
+e.y+
+dy/d*
+e.speed*
+dt;
+
+moveCircleWithBuildings(
+e,
+nextEnemyX,
+nextEnemyY
+);
+
+}
+
+
+if(
+d<e.radius+player.radius&&
+player.invincible<=0
+){
+
+player.health-=e.damage;
+
+player.invincible=.55;
+
+explosion(
+player.x,
+player.y
+);
+
+if(player.health<=0){
+
+endGame();
+
+return;
+
+}
+
+}
+
+}
+
+
+/* BALLES */
+
+for(let i=bullets.length-1;i>=0;i--){
+
+let b=bullets[i];
+
+b.x+=b.vx*dt;
+b.y+=b.vy*dt;
+
+let remove=false;
+
+
+for(
+let j=enemies.length-1;
+j>=0&&!remove;
+j--
+){
+
+let e=enemies[j];
+
+if(
+Math.hypot(
+b.x-e.x,
+b.y-e.y
+)<
+b.radius+e.radius
+){
+
+e.health-=b.damage;
+
+remove=true;
+
+
+if(e.health<=0){
+
+score+=10*scoreMultiplier;
+kills++;
+coins+=10;
+
+explosion(
+e.x,
+e.y
+);
+
+enemies.splice(j,1);
+
+if(
+kills>0&&
+kills%40===0
+){
+
+spawnPowerUp(
+e.x,
+e.y
+);
+
+}
+
+}
+
+}
+
+}
+
+
+if(
+b.x<-100||
+b.x>WORLD_WIDTH+100||
+b.y<-100||
+b.y>WORLD_HEIGHT+100
+)
+remove=true;
+
+
+if(remove)
+bullets.splice(i,1);
+
+}
+
+
+/* BALLES TOURELLES */
+
+for(
+let i=turretBullets.length-1;
+i>=0;
+i--
+){
+
+let b=turretBullets[i];
+
+b.x+=b.vx*dt;
+b.y+=b.vy*dt;
+
+let remove=false;
+
+
+for(
+let j=enemies.length-1;
+j>=0&&!remove;
+j--
+){
+
+let e=enemies[j];
+
+if(
+Math.hypot(
+b.x-e.x,
+b.y-e.y
+)<
+b.radius+e.radius
+){
+
+e.health-=b.damage;
+
+remove=true;
+
+
+if(e.health<=0){
+
+score+=10*scoreMultiplier;
+kills++;
+coins+=10;
+
+explosion(
+e.x,
+e.y
+);
+
+enemies.splice(j,1);
+
+if(
+kills>0&&
+kills%40===0
+){
+
+spawnPowerUp(
+e.x,
+e.y
+);
+
+}
+
+}
+
+}
+
+}
+
+
+if(
+b.x<-100||
+b.x>WORLD_WIDTH+100||
+b.y<-100||
+b.y>WORLD_HEIGHT+100
+)
+remove=true;
+
+
+if(remove)
+turretBullets.splice(i,1);
+
+}
+
+
+/* POWER-UPS */
+
+for(
+let i=powerUps.length-1;
+i>=0;
+i--
+){
+
+const p=powerUps[i];
+
+p.pulse+=dt*4;
+
+const distance=
+Math.hypot(
+p.x-player.x,
+p.y-player.y
+);
+
+if(
+distance<
+p.radius+player.radius
+){
+
+collectPowerUp(p);
+
+powerUps.splice(i,1);
+
+}
+
+}
+
+
+/* PARTICULES */
+
+for(
+let i=particles.length-1;
+i>=0;
+i--
+){
+
+let p=particles[i];
+
+p.x+=p.vx*dt;
+p.y+=p.vy*dt;
+
+p.life-=dt;
+
+if(p.life<=0)
+particles.splice(i,1);
+
+}
+
+
+wave=Math.floor(kills/15)+1;
+
+$("score").textContent=score;
+$("kills").textContent=kills;
+$("wave").textContent=wave;
+
+$("health").style.width=
+Math.max(
+0,
+player.health/
+player.maxHealth*
+100
+)+"%";
+
+}
+
+
+/* ================= TERRAIN ================= */
+
+function drawTerrainTile(offsetX,offsetY){
+
+ctx.save();
+
+ctx.translate(
+offsetX,
+offsetY
+);
+
+
+ctx.fillStyle="#303832";
+
+ctx.fillRect(
+0,
+0,
+TILE_SIZE,
+TILE_SIZE
+);
+
+
+const grassZones=[
+
+[0,0,1100,1100],
+[1900,0,1100,1100],
+[0,1900,1100,1100],
+[1900,1900,1100,1100],
+[650,650,400,400],
+[1950,650,400,400],
+[650,1950,400,400],
+[1950,1950,400,400]
+
+];
+
+
+for(const z of grassZones){
+
+ctx.fillStyle="#3d4b3b";
+
+ctx.fillRect(
+z[0],
+z[1],
+z[2],
+z[3]
+);
+
+ctx.strokeStyle="#52634a";
+ctx.lineWidth=4;
+
+
+for(
+let x=z[0]+25;
+x<z[0]+z[2]-10;
+x+=55
+){
+
+for(
+let y=z[1]+25;
+y<z[1]+z[3]-10;
+y+=65
+){
+
+ctx.beginPath();
+
+ctx.moveTo(
+x,
+y+12
+);
+
+ctx.lineTo(
+x+5,
+y-5
+);
+
+ctx.moveTo(
+x+7,
+y+12
+);
+
+ctx.lineTo(
+x+14,
+y
+);
+
+ctx.stroke();
+
+}
+
+}
+
+}
+
+
+const roads=[
+
+{x:1200,y:0,w:600,h:TILE_SIZE},
+
+{x:0,y:1200,w:TILE_SIZE,h:600}
+
+];
+
+
+for(const r of roads){
+
+ctx.fillStyle="#77756b";
+
+ctx.fillRect(
+r.x-45,
+r.y-45,
+r.w+90,
+r.h+90
+);
+
+ctx.fillStyle="#242827";
+
+ctx.fillRect(
+r.x,
+r.y,
+r.w,
+r.h
+);
+
+}
+
+
+ctx.strokeStyle="#bcae68";
+ctx.globalAlpha=.45;
+ctx.lineWidth=10;
+ctx.setLineDash([75,70]);
+
+
+ctx.beginPath();
+ctx.moveTo(1500,0);
+ctx.lineTo(1500,TILE_SIZE);
+ctx.stroke();
+
+
+ctx.beginPath();
+ctx.moveTo(0,1500);
+ctx.lineTo(TILE_SIZE,1500);
+ctx.stroke();
+
+
+ctx.setLineDash([]);
+ctx.globalAlpha=1;
+
+
+const cracks=[
+
+[1160,250,150,60],
+[1810,350,-130,70],
+[1280,650,160,-50],
+[1750,850,-170,60],
+[1080,1080,130,40],
+[1900,1100,-160,-50],
+[1050,1400,150,-60],
+[1900,1420,-130,70],
+[1120,1900,160,50],
+[1800,2050,-170,-70],
+[1250,2350,140,-50],
+[1780,2500,-150,60],
+[550,1450,120,40],
+[2450,1520,-120,-50]
+
+];
+
+
+ctx.strokeStyle="#101514";
+ctx.lineWidth=9;
+
+
+for(const c of cracks){
+
+ctx.beginPath();
+
+ctx.moveTo(
+c[0],
+c[1]
+);
+
+ctx.lineTo(
+c[0]+c[2]*.45,
+c[1]+c[3]
+);
+
+ctx.lineTo(
+c[0]+c[2],
+c[1]+c[3]*.25
+);
+
+ctx.stroke();
+
+}
+
+
+/* BÂTIMENTS */
+
+for(const b of BUILDINGS){
+
+const[x,y,w,h]=b;
+
+
+ctx.fillStyle="#171b1a";
+
+ctx.fillRect(
+x+15,
+y+20,
+w,
+h
+);
+
+
+ctx.fillStyle="#5c5c55";
+
+ctx.fillRect(
+x,
+y,
+w,
+h
+);
+
+
+ctx.fillStyle="#303330";
+
+ctx.fillRect(
+x+18,
+y+18,
+w-36,
+h-36
+);
+
+
+ctx.fillStyle="#151817";
+
+
+for(
+let wx=x+50;
+wx<x+w-40;
+wx+=85
+){
+
+for(
+let wy=y+50;
+wy<y+h-35;
+wy+=80
+){
+
+ctx.fillRect(
+wx,
+wy,
+42,
+30
+);
+
+}
+
+}
+
+
+ctx.strokeStyle="#73766e";
+ctx.lineWidth=4;
+
+
+for(
+let wx=x+50;
+wx<x+w-40;
+wx+=85
+){
+
+for(
+let wy=y+50;
+wy<y+h-35;
+wy+=80
+){
+
+ctx.beginPath();
+
+ctx.moveTo(
+wx,
+wy
+);
+
+ctx.lineTo(
+wx+42,
+wy+30
+);
+
+ctx.moveTo(
+wx+42,
+wy
+);
+
+ctx.lineTo(
+wx,
+wy+30
+);
+
+ctx.stroke();
+
+}
+
+}
+
+
+ctx.fillStyle="#817867";
+
+ctx.fillRect(
+x+w*.45,
+y,
+35,
+h
+);
+
+
+ctx.fillStyle="#252827";
+
+ctx.fillRect(
+x+w*.15,
+y+h*.68,
+w*.28,
+25
+);
+
+}
+
+
+/* VOITURES */
+
+const cars=[
+
+[1100,530,-.12],
+[1900,520,.2],
+[1100,2110,.18],
+[1900,2140,-.18],
+[570,1100,1.55],
+[2430,1900,1.7],
+[520,1900,-.4],
+[2480,1080,.5],
+[950,1120,.05],
+[2050,1850,.1]
+
+];
+
+
+for(const car of cars){
+
+const[x,y,a]=car;
+
+ctx.save();
+
+ctx.translate(x,y);
+ctx.rotate(a);
+
+ctx.fillStyle="#111";
+
+ctx.fillRect(
+-58,
+-30,
+116,
+60
+);
+
+ctx.fillStyle="#3e4541";
+
+ctx.fillRect(
+-55,
+-25,
+110,
+50
+);
+
+ctx.fillStyle="#151c1c";
+
+ctx.fillRect(
+-34,
+-19,
+29,
+38
+);
+
+ctx.fillRect(
+5,
+-19,
+29,
+38
+);
+
+ctx.fillStyle="#0d0f0f";
+
+ctx.fillRect(
+-48,
+-37,
+27,
+12
+);
+
+ctx.fillRect(
+21,
+-37,
+27,
+12
+);
+
+ctx.fillRect(
+-48,
+25,
+27,
+12
+);
+
+ctx.fillRect(
+21,
+25,
+27,
+12
+);
+
+ctx.fillStyle="#713d2d";
+
+ctx.fillRect(
+-42,
+-24,
+23,
+8
+);
+
+ctx.fillRect(
+18,
+16,
+25,
+7
+);
+
+ctx.fillStyle="#b5a36f";
+
+ctx.fillRect(
+39,
+-5,
+12,
+10
+);
+
+ctx.restore();
+
+}
+
+
+/* ARBRES */
+
+const deadTrees=[
+
+[70,700,1.2],
+[500,610,.8],
+[2850,700,1.1],
+[2780,1870,.9],
+[100,1900,1.3],
+[900,2810,.9],
+[2070,2820,1.1],
+[2860,2700,.8],
+[620,2350,1],
+[2420,580,1]
+
+];
+
+
+for(const[x,y,s] of deadTrees){
+
+ctx.save();
+
+ctx.translate(x,y);
+ctx.scale(s,s);
+
+ctx.strokeStyle="#29231e";
+ctx.lineWidth=22;
+
+ctx.beginPath();
+
+ctx.moveTo(0,60);
+ctx.lineTo(0,-60);
+
+ctx.stroke();
+
+ctx.lineWidth=11;
+
+ctx.beginPath();
+
+ctx.moveTo(0,-15);
+ctx.lineTo(-55,-65);
+
+ctx.moveTo(0,5);
+ctx.lineTo(60,-45);
+
+ctx.moveTo(0,-35);
+ctx.lineTo(35,-95);
+
+ctx.stroke();
+
+ctx.fillStyle="#46372b";
+
+ctx.beginPath();
+
+ctx.arc(
+-60,
+-68,
+12,
+0,
+Math.PI*2
+);
+
+ctx.arc(
+65,
+-48,
+10,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+ctx.restore();
+
+}
+
+
+/* TOMBES */
+
+const graves=[
+
+[430,470],[490,470],[550,470],[610,470],
+[430,530],[490,530],[550,530],[610,530],
+[420,590],[480,590],[540,590],[600,590]
+
+];
+
+
+for(const[x,y] of graves){
+
+ctx.fillStyle="#777873";
+
+ctx.fillRect(
+x-12,
+y-25,
+24,
+35
+);
+
+ctx.fillStyle="#8b8c85";
+
+ctx.fillRect(
+x-5,
+y-34,
+10,
+11
+);
+
+ctx.fillRect(
+x-14,
+y-28,
+28,
+7
+);
+
+ctx.fillStyle="#222";
+
+ctx.fillRect(
+x-4,
+y-5,
+8,
+4
+);
+
+}
+
+
+/* BARRICADES */
+
+const barricades=[
+
+[950,470,.1],
+[2050,470,-.2],
+[950,2530,-.15],
+[2050,2530,.2]
+
+];
+
+
+for(const[x,y,a] of barricades){
+
+ctx.save();
+
+ctx.translate(x,y);
+ctx.rotate(a);
+
+ctx.strokeStyle="#50351f";
+ctx.lineWidth=20;
+
+ctx.beginPath();
+
+ctx.moveTo(-65,-25);
+ctx.lineTo(65,25);
+
+ctx.moveTo(-65,25);
+ctx.lineTo(65,-25);
+
+ctx.stroke();
+
+ctx.strokeStyle="#99673d";
+ctx.lineWidth=8;
+
+ctx.beginPath();
+
+ctx.moveTo(-70,0);
+ctx.lineTo(70,0);
+
+ctx.stroke();
+
+ctx.restore();
+
+}
+
+
+/* POUBELLES */
+
+const dumpsters=[
+
+[1050,650],
+[1950,650],
+[1050,2350],
+[1950,2350]
+
+];
+
+
+for(const[x,y] of dumpsters){
+
+ctx.fillStyle="#29312f";
+
+ctx.fillRect(
+x-35,
+y-25,
+70,
+50
+);
+
+ctx.fillStyle="#111817";
+
+ctx.fillRect(
+x-42,
+y-32,
+84,
+12
+);
+
+ctx.fillStyle="#66706b";
+
+ctx.fillRect(
+x-25,
+y-12,
+50,
+6
+);
+
+}
+
+
+/* SANG */
+
+const blood=[
+
+[1150,430,55],
+[1820,420,40],
+[820,1320,65],
+[2100,1330,45],
+[1170,1780,50],
+[1840,1800,70],
+[1380,2380,45],
+[1600,2420,60]
+
+];
+
+
+for(const[x,y,s] of blood){
+
+ctx.fillStyle="#4b1115";
+
+ctx.beginPath();
+
+ctx.ellipse(
+x,y,
+s,
+s*.55,
+.2,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+ctx.fillStyle="#71151b";
+
+ctx.beginPath();
+
+ctx.arc(
+x+s*.55,
+y-s*.2,
+s*.16,
+0,
+Math.PI*2
+);
+
+ctx.arc(
+x-s*.45,
+y+s*.25,
+s*.11,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+}
+
+
+/* DÉCHETS */
+
+const trash=[
+
+[350,900],
+[2700,900],
+[350,2100],
+[2650,2150],
+[850,500],
+[2150,500],
+[850,2500],
+[2150,2500]
+
+];
+
+
+for(const[x,y] of trash){
+
+const pieces=[
+
+[-18,-10,7],
+[4,-16,5],
+[16,8,8],
+[-5,17,6],
+[20,-2,4]
+
+];
+
+
+for(const[pX,pY,r] of pieces){
+
+ctx.fillStyle="#3b403d";
+
+ctx.beginPath();
+
+ctx.arc(
+x+pX,
+y+pY,
+r,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+}
+
+}
+
+ctx.restore();
+
+}
+
 
 function drawWorldDecorations(){
 
-  const positions=[
+drawTerrainTile(0,0);
 
-    [250,300],
-    [600,550],
-    [1100,250],
-    [1500,500],
-    [2200,300],
-    [2700,650],
+drawTerrainTile(
+TILE_SIZE,
+0
+);
 
-    [300,1200],
-    [800,1450],
-    [1300,1150],
-    [1900,1300],
-    [2500,1150],
+drawTerrainTile(
+0,
+TILE_SIZE
+);
 
-    [450,2200],
-    [1000,2500],
-    [1600,2100],
-    [2200,2400],
-    [2750,2200],
-
-    [500,2800],
-    [1200,2850],
-    [2100,2800],
-    [2600,2700]
-
-  ];
-
-
-  for(
-    const pos of positions
-  ){
-
-    const x=pos[0];
-    const y=pos[1];
-
-
-    ctx.fillStyle=
-      "#70452a";
-
-    ctx.fillRect(
-      x-8,
-      y,
-      16,
-      45
-    );
-
-
-    ctx.fillStyle=
-      "#166534";
-
-    ctx.beginPath();
-
-    ctx.arc(
-      x,
-      y-12,
-      35,
-      0,
-      Math.PI*2
-    );
-
-    ctx.fill();
-
-
-    ctx.fillStyle=
-      "#15803d";
-
-    ctx.beginPath();
-
-    ctx.arc(
-      x-20,
-      y-5,
-      25,
-      0,
-      Math.PI*2
-    );
-
-    ctx.arc(
-      x+20,
-      y-5,
-      25,
-      0,
-      Math.PI*2
-    );
-
-    ctx.fill();
-
-  }
+drawTerrainTile(
+TILE_SIZE,
+TILE_SIZE
+);
 
 }
 
 
-/* =====================================================
-   MENU AMÉLIORATIONS
-===================================================== */
+/* ================= TOURELLES VISUELLES ================= */
+
+function drawTurret(turret){
+
+ctx.save();
+
+ctx.translate(
+turret.x,
+turret.y
+);
+
+ctx.strokeStyle="#ffffff10";
+ctx.lineWidth=2;
+
+ctx.beginPath();
+
+ctx.arc(
+0,
+0,
+turret.range,
+0,
+Math.PI*2
+);
+
+ctx.stroke();
+
+
+if(turret.type==="machine"){
+
+ctx.fillStyle="#374151";
+
+ctx.beginPath();
+
+ctx.arc(
+0,
+0,
+24,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+ctx.fillStyle="#6b7280";
+
+ctx.beginPath();
+
+ctx.arc(
+0,
+0,
+15,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+}
+
+
+if(turret.type==="cannon"){
+
+ctx.fillStyle="#4b5563";
+
+ctx.beginPath();
+
+ctx.arc(
+0,
+0,
+27,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+ctx.fillStyle="#9ca3af";
+
+ctx.beginPath();
+
+ctx.arc(
+0,
+0,
+16,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+}
+
+
+if(turret.type==="heavy"){
+
+ctx.fillStyle="#1f2937";
+
+ctx.beginPath();
+
+ctx.arc(
+0,
+0,
+30,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+ctx.fillStyle="#6b7280";
+
+ctx.beginPath();
+
+ctx.arc(
+0,
+0,
+18,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+}
+
+
+const target=
+turretTarget(turret);
+
+
+if(target){
+
+const angle=
+Math.atan2(
+target.y-turret.y,
+target.x-turret.x
+);
+
+ctx.rotate(angle);
+
+ctx.fillStyle="#111827";
+
+
+if(turret.type==="machine")
+ctx.fillRect(8,-5,30,10);
+
+if(turret.type==="cannon")
+ctx.fillRect(8,-7,38,14);
+
+if(turret.type==="heavy")
+ctx.fillRect(8,-8,50,16);
+
+}
+
+
+ctx.restore();
+
+}
+
+
+/* ================= DESSIN ================= */
+
+function draw(){
+
+ctx.clearRect(
+0,
+0,
+W,
+H
+);
+
+ctx.save();
+
+ctx.translate(
+-camera.x*CAMERA_ZOOM,
+-camera.y*CAMERA_ZOOM
+);
+
+ctx.scale(
+CAMERA_ZOOM,
+CAMERA_ZOOM
+);
+
+drawWorldDecorations();
+
+
+/* PARTICULES */
+
+for(const p of particles){
+
+ctx.globalAlpha=
+Math.max(
+0,
+p.life*2
+);
+
+ctx.fillStyle="#fbbf24";
+
+ctx.beginPath();
+
+ctx.arc(
+p.x,
+p.y,
+5,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+}
+
+ctx.globalAlpha=1;
+
+
+/* TOURELLES */
+
+for(const turret of turrets)
+drawTurret(turret);
+
+
+/* BALLES */
+
+for(const b of bullets){
+
+ctx.fillStyle="#facc15";
+
+ctx.shadowColor="#facc15";
+ctx.shadowBlur=12;
+
+ctx.beginPath();
+
+ctx.arc(
+b.x,
+b.y,
+b.radius,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+}
+
+
+for(const b of turretBullets){
+
+ctx.fillStyle=
+b.type==="heavy"
+?"#f97316"
+:"#60a5fa";
+
+ctx.shadowColor=
+b.type==="heavy"
+?"#f97316"
+:"#60a5fa";
+
+ctx.shadowBlur=10;
+
+ctx.beginPath();
+
+ctx.arc(
+b.x,
+b.y,
+b.radius,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+}
+
+ctx.shadowBlur=0;
+
+
+/* POWER-UPS */
+
+for(const p of powerUps){
+
+const pulse=
+1+Math.sin(p.pulse)*.12;
+
+ctx.save();
+
+ctx.translate(
+p.x,
+p.y
+);
+
+ctx.scale(
+pulse,
+pulse
+);
+
+if(p.type==="skull"){
+
+ctx.fillStyle="#ef4444";
+
+ctx.beginPath();
+
+ctx.arc(
+0,
+0,
+30,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+ctx.strokeStyle="#ffffff";
+ctx.lineWidth=4;
+
+ctx.stroke();
+
+ctx.fillStyle="#ffffff";
+
+ctx.font="38px Arial";
+
+ctx.textAlign="center";
+ctx.textBaseline="middle";
+
+ctx.fillText(
+"💀",
+0,
+1
+);
+
+}
+
+if(p.type==="x2"){
+
+ctx.fillStyle="#facc15";
+
+ctx.beginPath();
+
+ctx.arc(
+0,
+0,
+30,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+ctx.strokeStyle="#ffffff";
+ctx.lineWidth=4;
+
+ctx.stroke();
+
+ctx.fillStyle="#111827";
+
+ctx.font="bold 22px Arial";
+
+ctx.textAlign="center";
+ctx.textBaseline="middle";
+
+ctx.fillText(
+"X2",
+0,
+1
+);
+
+}
+
+ctx.restore();
+
+}
+
+
+/* ENNEMIS */
+
+for(const e of enemies){
+
+ctx.fillStyle="#0005";
+
+ctx.beginPath();
+
+ctx.ellipse(
+e.x,
+e.y+e.radius*.8,
+e.radius*1.1,
+e.radius*.4,
+0,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+ctx.fillStyle=e.color;
+
+ctx.beginPath();
+
+ctx.arc(
+e.x,
+e.y,
+e.radius,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+
+ctx.fillStyle="white";
+
+ctx.beginPath();
+
+ctx.arc(
+e.x-e.radius*.35,
+e.y-e.radius*.2,
+e.radius*.22,
+0,
+Math.PI*2
+);
+
+ctx.arc(
+e.x+e.radius*.35,
+e.y-e.radius*.2,
+e.radius*.22,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+
+ctx.fillStyle="#111";
+
+ctx.beginPath();
+
+ctx.arc(
+e.x-e.radius*.35,
+e.y-e.radius*.2,
+e.radius*.09,
+0,
+Math.PI*2
+);
+
+ctx.arc(
+e.x+e.radius*.35,
+e.y-e.radius*.2,
+e.radius*.09,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+
+if(e.health<e.maxHealth){
+
+let bw=e.radius*2.2;
+
+ctx.fillStyle="#300";
+
+ctx.fillRect(
+e.x-bw/2,
+e.y-e.radius-10,
+bw,
+5
+);
+
+ctx.fillStyle="#4ade80";
+
+ctx.fillRect(
+e.x-bw/2,
+e.y-e.radius-10,
+bw*Math.max(
+0,
+e.health/e.maxHealth
+),
+5
+);
+
+}
+
+}
+
+
+/* JOUEUR */
+
+if(player){
+
+if(
+player.invincible<=0||
+Math.floor(
+player.invincible*20
+)%2===0
+){
+
+ctx.fillStyle="#0006";
+
+ctx.beginPath();
+
+ctx.ellipse(
+player.x,
+player.y+20,
+27,
+10,
+0,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+ctx.fillStyle="#3b82f6";
+
+ctx.beginPath();
+
+ctx.arc(
+player.x,
+player.y,
+player.radius,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+ctx.fillStyle="#f1c27d";
+
+ctx.beginPath();
+
+ctx.arc(
+player.x,
+player.y-6,
+11,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+
+const t=nearestEnemy();
+
+
+if(t){
+
+ctx.save();
+
+ctx.translate(
+player.x,
+player.y
+);
+
+ctx.rotate(
+Math.atan2(
+t.y-player.y,
+t.x-player.x
+)
+);
+
+ctx.fillStyle="#111827";
+
+
+if(currentWeapon==="pistol"){
+
+ctx.fillStyle="#17191c";
+
+ctx.fillRect(
+10,
+-6,
+31,
+9
+);
+
+ctx.fillStyle="#34383d";
+
+ctx.fillRect(
+10,
+-9,
+23,
+10
+);
+
+ctx.fillStyle="#111315";
+
+ctx.fillRect(
+17,
+3,
+8,
+18
+);
+
+ctx.fillRect(
+12,
+-10,
+4,
+5
+);
+
+}
+
+
+if(currentWeapon==="smg"){
+
+ctx.fillRect(
+10,
+-5,
+38,
+10
+);
+
+ctx.fillRect(
+18,
+5,
+8,
+15
+);
+
+ctx.fillRect(
+-2,
+-3,
+13,
+7
+);
+
+}
+
+
+if(currentWeapon==="rifle"){
+
+ctx.fillStyle="#16191d";
+
+ctx.fillRect(
+10,
+-7,
+55,
+7
+);
+
+ctx.fillStyle="#68452e";
+
+ctx.fillRect(
+20,
+3,
+25,
+8
+);
+
+ctx.fillStyle="#68452e";
+
+ctx.fillRect(
+28,
+-12,
+25,
+7
+);
+
+}
+
+
+ctx.restore();
+
+}
+
+}
+
+}
+
+
+ctx.strokeStyle="#111827";
+ctx.lineWidth=30;
+
+ctx.strokeRect(
+0,
+0,
+WORLD_WIDTH,
+WORLD_HEIGHT
+);
+
+ctx.restore();
+
+}
+
+
+/* ================= MENU AMÉLIORATIONS ================= */
 
 function updateUpgradeMenu(){
 
-  coinsText.textContent=
-    "💰 "+coins;
+$("coinsText").textContent=
+"💰 "+coins;
 
 
-  document.getElementById(
-    "healthLevel"
-  ).textContent=
-    "Niveau "+
-    upgrades.health;
+for(
+const k of
+["health","fire","damage","speed"]
+){
 
+$(k+"Level").textContent=
+"Niveau "+upgrades[k];
 
-  document.getElementById(
-    "healthUpgrade"
-  ).textContent=
-    "💰 "+
-    getHealthCost();
+$(k+"Upgrade").textContent=
+"💰 "+costs[k]();
 
+$(k+"Upgrade").disabled=
+coins<costs[k]();
 
-  document.getElementById(
-    "healthUpgrade"
-  ).disabled=
-    coins<
-    getHealthCost();
-
-
-  document.getElementById(
-    "fireLevel"
-  ).textContent=
-    "Niveau "+
-    upgrades.fire;
-
-
-  document.getElementById(
-    "fireUpgrade"
-  ).textContent=
-    "💰 "+
-    getFireCost();
-
-
-  document.getElementById(
-    "fireUpgrade"
-  ).disabled=
-    coins<
-    getFireCost();
-
-
-  document.getElementById(
-    "damageLevel"
-  ).textContent=
-    "Niveau "+
-    upgrades.damage;
-
-
-  document.getElementById(
-    "damageUpgrade"
-  ).textContent=
-    "💰 "+
-    getDamageCost();
-
-
-  document.getElementById(
-    "damageUpgrade"
-  ).disabled=
-    coins<
-    getDamageCost();
-
-
-  document.getElementById(
-    "speedLevel"
-  ).textContent=
-    "Niveau "+
-    upgrades.speed;
-
-
-  document.getElementById(
-    "speedUpgrade"
-  ).textContent=
-    "💰 "+
-    getSpeedCost();
-
-
-  document.getElementById(
-    "speedUpgrade"
-  ).disabled=
-    coins<
-    getSpeedCost();
+}
 
 }
 
 
-/* =====================================================
-   OUVRIR / FERMER
-===================================================== */
-
 function openUpgradeMenu(){
 
-  if(!running)return;
+if(!running)
+return;
 
-  upgradeOpen=true;
+upgradeOpen=true;
+weaponOpen=false;
+turretOpen=false;
 
-  resetJoystick();
+$("weaponMenu").style.display="none";
+$("turretMenu").style.display="none";
 
-  updateUpgradeMenu();
+resetJoystick();
 
-  upgradeMenu.style.display=
-    "flex";
+updateUpgradeMenu();
+
+$("upgradeMenu").style.display="flex";
 
 }
 
 
 function closeUpgradeMenu(){
 
-  upgradeOpen=false;
+upgradeOpen=false;
 
-  upgradeMenu.style.display=
-    "none";
+$("upgradeMenu").style.display="none";
 
 }
 
 
-document.getElementById(
-  "upgradeButton"
-).addEventListener(
-  "click",
-  openUpgradeMenu
+$("upgradeButton")
+.addEventListener(
+"click",
+openUpgradeMenu
 );
 
 
-document.getElementById(
-  "closeUpgrade"
-).addEventListener(
-  "click",
-  closeUpgradeMenu
+$("closeUpgrade")
+.addEventListener(
+"click",
+closeUpgradeMenu
 );
 
 
-/* =====================================================
-   AMÉLIORATION VIE
-===================================================== */
+for(
+const k of
+["health","fire","damage","speed"]
+){
 
-document.getElementById(
-  "healthUpgrade"
-).addEventListener(
-  "click",
-  ()=>{
+$(k+"Upgrade")
+.addEventListener(
+"click",
+()=>{
 
-    const cost=
-      getHealthCost();
+let cost=costs[k]();
 
-    if(coins<cost)return;
+if(coins<cost)
+return;
 
-    coins-=cost;
+coins-=cost;
 
-    upgrades.health++;
-
-
-    if(player){
-
-      player.maxHealth+=25;
-
-      player.health+=25;
-
-    }
+upgrades[k]++;
 
 
-    saveUpgrades();
+if(player){
 
-    updateUpgradeMenu();
+if(k==="health"){
 
-  }
+player.maxHealth+=25;
+player.health+=25;
+
+}
+
+
+if(k==="fire"){
+
+const weapon=
+weaponStats[currentWeapon];
+
+player.fireRate=
+Math.max(
+.08,
+weapon.fireRate-
+upgrades.fire*.035
+);
+
+}
+
+
+if(k==="damage"){
+
+const weapon=
+weaponStats[currentWeapon];
+
+player.damage=
+weapon.damage+
+upgrades.damage*10;
+
+}
+
+
+if(k==="speed"){
+
+player.speed=
+300+
+upgrades.speed*25;
+
+}
+
+}
+
+
+saveUpgrades();
+
+updateUpgradeMenu();
+
+}
+);
+
+}
+
+
+/* ================= MENU ARMES ================= */
+
+function updateWeaponMenu(){
+
+$("weaponCoins").textContent=
+"💰 "+coins;
+
+
+for(
+const id of
+["pistol","smg","rifle"]
+){
+
+const card=$(id+"Card");
+const button=$(id+"Button");
+const status=$(id+"Status");
+
+
+card.classList.remove(
+"selected"
 );
 
 
-/* =====================================================
-   AMÉLIORATION TIR
-===================================================== */
+if(currentWeapon===id){
 
-document.getElementById(
-  "fireUpgrade"
-).addEventListener(
-  "click",
-  ()=>{
+card.classList.add(
+"selected"
+);
 
-    const cost=
-      getFireCost();
+button.textContent="ÉQUIPÉE";
 
-    if(coins<cost)return;
+button.disabled=true;
 
-    coins-=cost;
+status.textContent=
+"✓ Arme actuelle";
 
-    upgrades.fire++;
+continue;
+
+}
 
 
-    if(player){
+if(weaponsOwned[id]){
 
-      player.fireRate=
-        Math.max(
-          .08,
-          .35-
-          upgrades.fire*.035
-        );
+button.textContent="UTILISER";
 
-    }
+button.disabled=false;
+
+status.textContent=
+"✓ Achetée";
+
+}else{
+
+const price=
+weaponStats[id].price;
+
+button.textContent=
+"💰 "+price;
+
+button.disabled=
+coins<price;
+
+status.textContent=
+"💰 "+price;
+
+}
+
+}
+
+}
 
 
-    saveUpgrades();
+function openWeaponMenu(){
 
-    updateUpgradeMenu();
+if(!running)
+return;
 
-  }
+weaponOpen=true;
+upgradeOpen=false;
+turretOpen=false;
+
+$("upgradeMenu").style.display="none";
+$("turretMenu").style.display="none";
+
+resetJoystick();
+
+updateWeaponMenu();
+
+$("weaponMenu").style.display="flex";
+
+}
+
+
+function closeWeaponMenu(){
+
+weaponOpen=false;
+
+$("weaponMenu").style.display="none";
+
+}
+
+
+$("weaponButton")
+.addEventListener(
+"click",
+openWeaponMenu
 );
 
 
-/* =====================================================
-   AMÉLIORATION DÉGÂTS
-===================================================== */
-
-document.getElementById(
-  "damageUpgrade"
-).addEventListener(
-  "click",
-  ()=>{
-
-    const cost=
-      getDamageCost();
-
-    if(coins<cost)return;
-
-    coins-=cost;
-
-    upgrades.damage++;
-
-
-    if(player){
-
-      player.damage=
-        25+
-        upgrades.damage*10;
-
-    }
-
-
-    saveUpgrades();
-
-    updateUpgradeMenu();
-
-  }
+$("closeWeapon")
+.addEventListener(
+"click",
+closeWeaponMenu
 );
 
 
-/* =====================================================
-   AMÉLIORATION VITESSE
-===================================================== */
+function chooseWeapon(id){
 
-document.getElementById(
-  "speedUpgrade"
-).addEventListener(
-  "click",
-  ()=>{
-
-    const cost=
-      getSpeedCost();
-
-    if(coins<cost)return;
-
-    coins-=cost;
-
-    upgrades.speed++;
+const weapon=
+weaponStats[id];
 
 
-    if(player){
+if(!weaponsOwned[id]){
 
-      player.speed=
-        300+
-        upgrades.speed*25;
+if(coins<weapon.price)
+return;
 
-    }
+coins-=weapon.price;
+
+weaponsOwned[id]=true;
+
+}
 
 
-    saveUpgrades();
+currentWeapon=id;
 
-    updateUpgradeMenu();
+saveWeapons();
 
-  }
+
+if(player){
+
+player.damage=
+weapon.damage+
+upgrades.damage*10;
+
+player.fireRate=
+Math.max(
+.08,
+weapon.fireRate-
+upgrades.fire*.035
+);
+
+player.bulletSpeed=
+weapon.bulletSpeed;
+
+}
+
+
+updateWeaponMenu();
+
+}
+
+
+$("pistolButton")
+.addEventListener(
+"click",
+()=>chooseWeapon("pistol")
 );
 
 
-/* =====================================================
-   BOUCLE
-===================================================== */
+$("smgButton")
+.addEventListener(
+"click",
+()=>chooseWeapon("smg")
+);
+
+
+$("rifleButton")
+.addEventListener(
+"click",
+()=>chooseWeapon("rifle")
+);
+
+
+/* ================= TOURELLES ================= */
+
+function updateTurretMenu(){
+
+$("turretCoins").textContent=
+"💰 "+coins;
+
+}
+
+
+function openTurretMenu(){
+
+if(!running)
+return;
+
+turretOpen=true;
+upgradeOpen=false;
+weaponOpen=false;
+
+$("upgradeMenu").style.display="none";
+$("weaponMenu").style.display="none";
+
+resetJoystick();
+
+updateTurretMenu();
+
+$("turretMenu").style.display="flex";
+
+}
+
+
+function closeTurretMenu(){
+
+turretOpen=false;
+
+$("turretMenu").style.display="none";
+
+}
+
+
+$("turretButton")
+.addEventListener(
+"click",
+openTurretMenu
+);
+
+
+$("closeTurret")
+.addEventListener(
+"click",
+closeTurretMenu
+);
+
+
+function buyTurret(type){
+
+const stats=
+turretStats[type];
+
+if(coins<stats.price)
+return;
+
+coins-=stats.price;
+
+turretOpen=false;
+
+$("turretMenu").style.display="none";
+
+placingTurretType=type;
+
+placementMode=true;
+
+resetJoystick();
+
+$("placementInfo").style.display="block";
+
+$("cancelPlacement").style.display="block";
+
+}
+
+
+$("buyMachineTurret")
+.addEventListener(
+"click",
+()=>buyTurret("machine")
+);
+
+
+$("buyCannonTurret")
+.addEventListener(
+"click",
+()=>buyTurret("cannon")
+);
+
+
+$("buyHeavyTurret")
+.addEventListener(
+"click",
+()=>buyTurret("heavy")
+);
+
+
+function cancelPlacement(){
+
+if(
+placingTurretType&&
+turretStats[placingTurretType]
+){
+
+coins+=
+turretStats[
+placingTurretType
+].price;
+
+}
+
+placingTurretType=null;
+
+placementMode=false;
+
+$("placementInfo").style.display="none";
+
+$("cancelPlacement").style.display="none";
+
+}
+
+
+$("cancelPlacement")
+.addEventListener(
+"click",
+cancelPlacement
+);
+
+
+canvas.addEventListener(
+"pointerdown",
+e=>{
+
+if(!placementMode)
+return;
+
+const rect=
+canvas.getBoundingClientRect();
+
+const screenX=
+e.clientX-rect.left;
+
+const screenY=
+e.clientY-rect.top;
+
+const worldX=
+camera.x+
+screenX/CAMERA_ZOOM;
+
+const worldY=
+camera.y+
+screenY/CAMERA_ZOOM;
+
+const stats=
+turretStats[
+placingTurretType
+];
+
+
+const x=Math.max(
+stats.radius,
+Math.min(
+WORLD_WIDTH-stats.radius,
+worldX
+)
+);
+
+
+const y=Math.max(
+stats.radius,
+Math.min(
+WORLD_HEIGHT-stats.radius,
+worldY
+)
+);
+
+
+turrets.push({
+
+x:x,
+y:y,
+
+type:placingTurretType,
+
+damage:stats.damage,
+fireRate:stats.fireRate,
+bulletSpeed:stats.bulletSpeed,
+range:stats.range,
+radius:stats.radius,
+
+fireTimer:.2
+
+});
+
+
+placingTurretType=null;
+
+placementMode=false;
+
+$("placementInfo").style.display="none";
+
+$("cancelPlacement").style.display="none";
+
+}
+);
+
+
+/* ================= BOUCLE ================= */
 
 function loop(time){
 
-  if(!lastTime){
+if(!lastTime)
+lastTime=time;
 
-    lastTime=time;
+let dt=
+Math.min(
+(time-lastTime)/1000,
+.05
+);
 
-  }
+lastTime=time;
 
-  let dt=
-    (time-lastTime)/1000;
+update(dt);
+draw();
 
-  lastTime=time;
-
-  dt=Math.min(
-    dt,
-    .05
-  );
-
-  update(dt);
-
-  draw();
-
-  requestAnimationFrame(
-    loop
-  );
+requestAnimationFrame(loop);
 
 }
 
-requestAnimationFrame(
-  loop
-);
+
+requestAnimationFrame(loop);
 
 
-/* =====================================================
-   DÉMARRER
-===================================================== */
+/* ================= START ================= */
 
 function startGame(){
 
-  score=0;
+score=0;
+kills=0;
+wave=1;
+scoreMultiplier=1;
 
-  kills=0;
+powerUps=[];
 
-  wave=1;
+enemies=[];
+bullets=[];
+turretBullets=[];
+particles=[];
+turrets=[];
 
-  enemies=[];
+spawnTimer=0;
+shootTimer=0;
 
-  bullets=[];
+placingTurretType=null;
+placementMode=false;
 
-  particles=[];
-
-  player=
-    createPlayer();
-
-
-  camera.x=
-    player.x-
-    (W/2)/
-    CAMERA_ZOOM;
-
-
-  camera.y=
-    player.y-
-    (H/2)/
-    CAMERA_ZOOM;
+player=createPlayer();
 
 
-  startScreen.style.display=
-    "none";
-
-  gameOverScreen.style.display=
-    "none";
-
-  upgradeMenu.style.display=
-    "none";
-
-  upgradeOpen=false;
-
-  running=true;
-
-}
+const viewW=W/CAMERA_ZOOM;
+const viewH=H/CAMERA_ZOOM;
 
 
-document.getElementById(
-  "startBtn"
-).addEventListener(
-  "click",
-  startGame
+const maxCameraX=
+Math.max(
+0,
+WORLD_WIDTH-viewW
+);
+
+const maxCameraY=
+Math.max(
+0,
+WORLD_HEIGHT-viewH
 );
 
 
-/* =====================================================
-   GAME OVER
-===================================================== */
+camera.x=
+Math.max(
+0,
+Math.min(
+maxCameraX,
+player.x-viewW/2
+)
+);
 
-function endGame(){
 
-  running=false;
+camera.y=
+Math.max(
+0,
+Math.min(
+maxCameraY,
+player.y-viewH/2
+)
+);
 
-  upgradeOpen=false;
 
-  upgradeMenu.style.display=
-    "none";
+$("startScreen").style.display="none";
+$("gameOver").style.display="none";
 
-  finalScore.textContent=
-    score;
+$("upgradeMenu").style.display="none";
+$("weaponMenu").style.display="none";
+$("turretMenu").style.display="none";
 
-  finalKills.textContent=
-    kills;
+$("placementInfo").style.display="none";
+$("cancelPlacement").style.display="none";
 
-  gameOverScreen.style.display=
-    "flex";
+upgradeOpen=false;
+weaponOpen=false;
+turretOpen=false;
+
+ensureAudio();
+
+running=true;
+
+playMusic();
+
+resetJoystick();
 
 }
 
 
-document.getElementById(
-  "restartBtn"
-).addEventListener(
-  "click",
-  startGame
+/* ================= GAME OVER ================= */
+
+function endGame(){
+
+running=false;
+
+stopMusic();
+
+upgradeOpen=false;
+weaponOpen=false;
+turretOpen=false;
+
+placementMode=false;
+placingTurretType=null;
+
+resetJoystick();
+
+$("upgradeMenu").style.display="none";
+$("weaponMenu").style.display="none";
+$("turretMenu").style.display="none";
+
+$("placementInfo").style.display="none";
+$("cancelPlacement").style.display="none";
+
+$("finalScore").textContent=score;
+
+$("finalKills").textContent=kills;
+
+$("gameOver").style.display="flex";
+
+}
+
+
+$("startBtn")
+.addEventListener(
+"click",
+startGame
+);
+
+
+$("restartBtn")
+.addEventListener(
+"click",
+startGame
 );
 
 </script>
